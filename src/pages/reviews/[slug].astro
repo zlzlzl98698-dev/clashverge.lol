@@ -1,0 +1,31 @@
+---
+import { render } from 'astro:content';
+import ReviewLayout from '../../layouts/ReviewLayout.astro';
+import { getAllPublishedPosts, type UnifiedPost } from '../../utils/content';
+
+export async function getStaticPaths() {
+  const allPosts = await getAllPublishedPosts();
+  const reviewPosts = allPosts.filter((p) => p.collection === 'reviews');
+
+  return reviewPosts.map((post) => ({
+    params: { slug: post.slug },
+    props: { post, allPosts },
+  }));
+}
+
+interface Props {
+  post: UnifiedPost;
+  allPosts: UnifiedPost[];
+}
+
+const { post, allPosts } = Astro.props;
+const { Content, headings } = await render(post.rawEntry);
+
+const relatedPosts = allPosts
+  .filter((p) => p.slug !== post.slug && p.category === post.category)
+  .slice(0, 6);
+---
+
+<ReviewLayout post={post} headings={headings} relatedPosts={relatedPosts}>
+  <Content />
+</ReviewLayout>

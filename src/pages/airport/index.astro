@@ -1,0 +1,58 @@
+---
+import CategoryLayout from '../../layouts/CategoryLayout.astro';
+import { getPrimarySection } from '../../data/navigation';
+import { getPostsByCategory, getAllPublishedPosts } from '../../utils/content';
+import { MEASURED_BRANDS } from '../../data/brands';
+
+const section = getPrimarySection('airport');
+const posts = await getPostsByCategory('airport');
+const allPosts = await getAllPublishedPosts();
+const topMeasured = MEASURED_BRANDS.slice(0, 5);
+
+const faq = [
+  {
+    q: '2026年选择机场推荐榜单时，最重要的三个指标是什么？',
+    a: '第一看是否为 IEPL/IPLC 物理专线（决定晚高峰稳定性）；第二看是否支持第三方通用订阅（Clash Verge Rev / Shadowrocket）或提供免配置专属客户端；第三看每 GB 有效流量单价与是否为 1 倍倍率。',
+  },
+  {
+    q: '光速云作为首选推荐品牌，它的核心优势与限制分别是什么？',
+    a: '光速云自 2020 年运营至今，采用 IEPL+企业内网双专线与 VLESS 协议，同时支持自研客户端与 Clash 通用订阅（香港实测 529Mbps/22ms）。限制在于 ChatGPT 与 Gemini 需视节点手动切换，且特殊商品不支持退款，建议首次先买月付或小包实测。',
+  },
+];
+---
+
+<CategoryLayout section={section} posts={posts} faq={faq}>
+  <div slot="category-lead" class="observatory-panel p-6">
+    <div class="flex flex-wrap items-center justify-between gap-2 pb-4 border-b border-slate-800">
+      <div>
+        <span class="text-xs font-mono text-emerald-400">AIRPORT BENCHMARK QUICK MATRIX // 2026-10-19 实测速览</span>
+        <h2 class="text-lg font-bold text-white mt-0.5">核心专线品牌五地延迟与吞吐参考</h2>
+      </div>
+      <a href="/brands/" class="text-xs font-mono text-sky-400 hover:underline">
+        查看全部 31 家品牌库 →
+      </a>
+    </div>
+    <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+      {topMeasured.map((b) => {
+        const hk = b.speedRecords.find((r) => r.region === '香港');
+        return (
+          <a
+            href={`/brands/${b.slug}/`}
+            class="p-3.5 rounded-xl bg-[#111827] border border-slate-800 hover:border-blue-500 transition-colors block"
+          >
+            <div class="flex items-center justify-between">
+              <strong class="text-sm text-white">{b.name}</strong>
+              <span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-800 text-sky-300">
+                {b.foundedYear}
+              </span>
+            </div>
+            <p class="text-xs font-mono text-emerald-400 mt-1.5">
+              HK: {hk?.downloadText} ({hk?.latency})
+            </p>
+            <p class="text-[11px] text-slate-400 mt-1 truncate">{b.startingPriceLabel.split('|')[0]}</p>
+          </a>
+        );
+      })}
+    </div>
+  </div>
+</CategoryLayout>

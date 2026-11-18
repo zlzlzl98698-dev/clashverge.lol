@@ -1,0 +1,78 @@
+---
+import ArticleLayout from './ArticleLayout.astro';
+import { getBrandBySlug } from '../data/brands';
+import { SITE_CONFIG } from '../data/site';
+import type { UnifiedPost } from '../utils/content';
+import type { HeadingItem } from '../components/TableOfContents.astro';
+
+export interface Props {
+  post: UnifiedPost;
+  headings?: HeadingItem[];
+  relatedPosts?: UnifiedPost[];
+}
+
+const { post, headings = [], relatedPosts = [] } = Astro.props;
+const slugs: string[] =
+  post.rawEntry?.data?.comparedBrandSlugs || post.relatedBrands || ['guangsuyun', 'muguang', 'feimao'];
+const comparedBrands = slugs.map((s) => getBrandBySlug(s)).filter(Boolean);
+---
+
+<ArticleLayout post={post} headings={headings} relatedPosts={relatedPosts}>
+  {comparedBrands.length >= 2 && (
+    <div class="my-6 rounded-2xl border border-[#E5EAF1] overflow-hidden bg-white not-prose">
+      <div class="px-5 py-3.5 bg-[#0B1120] text-white flex items-center justify-between">
+        <span class="text-sm font-bold">参评品牌核心参数速查表</span>
+        <span class="text-xs font-mono text-slate-400">BATCH: 2026-10-19</span>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse text-xs sm:text-sm">
+          <thead>
+            <tr class="bg-[#F7F9FC] border-b border-[#E5EAF1] text-[#172033]">
+              <th class="py-3 px-4 font-semibold">品牌名称</th>
+              <th class="py-3 px-4 font-semibold">开业年份</th>
+              <th class="py-3 px-4 font-semibold">线路与协议</th>
+              <th class="py-3 px-4 font-semibold">起步参考价</th>
+              <th class="py-3 px-4 font-semibold">客户端支持</th>
+              <th class="py-3 px-4 font-semibold">香港实测</th>
+              <th class="py-3 px-4 font-semibold">操作</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-[#E5EAF1]">
+            {comparedBrands.map((b) => {
+              if (!b) return null;
+              const hk = b.speedRecords.find((r) => r.region === '香港');
+              return (
+                <tr class="hover:bg-[#F7F9FC]/60">
+                  <td class="py-3 px-4 font-bold text-[#172033]">
+                    <a href={`/brands/${b.slug}/`} class="hover:text-[#2563EB]">{b.name}</a>
+                  </td>
+                  <td class="py-3 px-4 text-[#64748B]">{b.foundedYear}</td>
+                  <td class="py-3 px-4">{b.lineType} ({b.protocols[0]})</td>
+                  <td class="py-3 px-4 font-mono text-[#2563EB] font-semibold">{b.startingPriceLabel.split('|')[0]}</td>
+                  <td class="py-3 px-4 text-xs">{b.clientSupport}</td>
+                  <td class="py-3 px-4 font-mono">
+                    {hk && hk.downloadMbps ? `${hk.downloadMbps}Mbps (${hk.latency})` : '待实测'}
+                  </td>
+                  <td class="py-3 px-4">
+                    <a
+                      href={`/go/${b.slug}/`}
+                      target="_blank"
+                      rel="nofollow sponsored noopener"
+                      class="px-2.5 py-1 rounded bg-[#2563EB] text-white text-xs font-semibold hover:bg-[#1D4ED8] whitespace-nowrap"
+                    >
+                      官网
+                    </a>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+      <div class="px-4 py-2 bg-[#F7F9FC] border-t border-[#E5EAF1] text-[11px] text-[#64748B]">
+        {SITE_CONFIG.shortDisclosure}
+      </div>
+    </div>
+  )}
+  <slot />
+</ArticleLayout>

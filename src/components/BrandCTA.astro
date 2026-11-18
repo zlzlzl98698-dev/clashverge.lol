@@ -1,0 +1,96 @@
+---
+import { getBrandBySlug, PROMOTED_PRIMARY_BRAND } from '../data/brands';
+import { SITE_CONFIG } from '../data/site';
+
+export interface Props {
+  brandSlug?: string;
+  contextTitle?: string;
+}
+
+const {
+  brandSlug = 'guangsuyun',
+  contextTitle = '相关专线品牌参考与实测入口',
+} = Astro.props;
+
+const brand = getBrandBySlug(brandSlug) || PROMOTED_PRIMARY_BRAND;
+---
+
+<aside class="my-8 rounded-2xl border border-blue-200 bg-gradient-to-br from-[#EFF6FF]/90 via-white to-[#F7F9FC] p-5 sm:p-6 shadow-card">
+  <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+    <div class="flex items-center gap-2">
+      <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#2563EB] text-white">
+        {brand.isPromoted ? '商业合作首选参考' : '品牌档案推荐'}
+      </span>
+      <span class="text-xs font-medium text-[#64748B]">{contextTitle}</span>
+    </div>
+    <span class="text-xs font-mono text-[#64748B]">
+      核实批次：{brand.verifiedDate}
+    </span>
+  </div>
+
+  <div class="flex flex-col md:flex-row md:items-center justify-between gap-5">
+    <div class="space-y-2 flex-1">
+      <div class="flex items-center gap-3">
+        {brand.logo && (
+          <img
+            src={brand.logo}
+            alt={`${brand.name} Logo`}
+            width="44"
+            height="44"
+            loading="lazy"
+            class="w-11 h-11 rounded-xl object-cover border border-[#E5EAF1] bg-white shrink-0"
+          />
+        )}
+        <div>
+          <h3 class="text-lg font-bold text-[#172033] flex items-center gap-2">
+            <span>{brand.name}</span>
+            <span class="text-xs font-normal px-2 py-0.5 rounded bg-white border border-[#E5EAF1] text-[#2563EB]">
+              {brand.lineType}
+            </span>
+          </h3>
+          <p class="text-xs text-[#64748B]">
+            起步参考：{brand.startingPriceLabel} · 优惠码：
+            <code class="font-mono font-bold text-[#2563EB]">{brand.couponCode}</code>
+          </p>
+        </div>
+      </div>
+
+      <p class="text-sm text-[#172033]/85 leading-relaxed">
+        {brand.summary}
+      </p>
+
+      <div class="flex flex-wrap gap-2 pt-1 text-xs text-[#64748B]">
+        <span class="px-2 py-0.5 rounded bg-white border border-[#E5EAF1]">
+          适用：{brand.targetAudience[0]}
+        </span>
+        <span class="px-2 py-0.5 rounded bg-amber-50/80 border border-amber-200/70 text-amber-900">
+          注意：{brand.limitations[0]}
+        </span>
+      </div>
+    </div>
+
+    <div class="flex flex-col sm:flex-row md:flex-col gap-2.5 shrink-0 md:w-48">
+      <a
+        href={`/go/${brand.slug}/`}
+        target="_blank"
+        rel="nofollow sponsored noopener"
+        class="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-sm font-semibold shadow-sm transition-colors text-center"
+      >
+        <span>前往 {brand.name} 官网</span>
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+        </svg>
+      </a>
+      <a
+        href={`/brands/${brand.slug}/`}
+        class="inline-flex items-center justify-center px-4 py-2 rounded-xl border border-[#E5EAF1] bg-white hover:border-[#2563EB] text-[#172033] hover:text-[#2563EB] text-xs font-semibold transition-colors text-center"
+      >
+        查看独立评测与测速报告
+      </a>
+    </div>
+  </div>
+
+  <p class="mt-3 pt-2.5 border-t border-blue-200/50 text-[11px] text-[#64748B]">
+    合规声明：{SITE_CONFIG.shortDisclosure} 购买前请确认退款条款，建议先用月付或小包实测本地晚高峰表现。
+  </p>
+</aside>

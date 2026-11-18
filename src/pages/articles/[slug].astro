@@ -1,0 +1,50 @@
+---
+import { render } from 'astro:content';
+import ArticleLayout from '../../layouts/ArticleLayout.astro';
+import { getAllPublishedPosts, type UnifiedPost } from '../../utils/content';
+
+export async function getStaticPaths() {
+  const allPosts = await getAllPublishedPosts();
+  const articlePosts = allPosts.filter((p) => p.collection === 'articles');
+
+  return articlePosts.map((post, idx) => ({
+    params: { slug: post.slug },
+    props: {
+      post,
+      prevPost: articlePosts[idx - 1],
+      nextPost: articlePosts[idx + 1],
+      allPosts,
+    },
+  }));
+}
+
+interface Props {
+  post: UnifiedPost;
+  prevPost?: UnifiedPost;
+  nextPost?: UnifiedPost;
+  allPosts: UnifiedPost[];
+}
+
+const { post, prevPost, nextPost, allPosts } = Astro.props;
+const { Content, headings } = await render(post.rawEntry);
+
+const relatedPosts = allPosts
+  .filter(
+    (p) =>
+      p.slug !== post.slug &&
+      (p.relatedSlugs.includes(post.slug) ||
+        post.relatedSlugs.includes(p.slug) ||
+        p.category === post.category)
+  )
+  .slice(0, 6);
+---
+
+<ArticleLayout
+  post={post}
+  headings={headings}
+  relatedPosts={relatedPosts}
+  prevPost={prevPost}
+  nextPost={nextPost}
+>
+  <Content />
+</ArticleLayout>

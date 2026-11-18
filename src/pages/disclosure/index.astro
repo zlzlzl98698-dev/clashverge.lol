@@ -1,0 +1,42 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumb from '../../components/Breadcrumb.astro';
+import { SITE_CONFIG } from '../../data/site';
+
+const breadcrumbs = [
+  { name: '首页', url: '/' },
+  { name: '商业推广与评测独立性披露', url: '/disclosure/' },
+];
+---
+
+<BaseLayout
+  title="商业推广与评测独立性披露 (Affiliate Disclosure) | clash订阅"
+  description="clash订阅（clashverge.lol）关于推广链接佣金机制、光速云合作品牌披露及独立实测数据完整性的透明声明。"
+  breadcrumbs={breadcrumbs}
+>
+  <div class="editorial-container py-12 max-w-4xl">
+    <Breadcrumb items={breadcrumbs} />
+    <h1 class="text-3xl font-extrabold text-[#172033] mb-6">
+      商业推广与评测独立性披露 (Affiliate Disclosure)
+    </h1>
+    <div class="article-prose card-surface p-6 sm:p-8">
+      <p>最后更新日期：{SITE_CONFIG.updatedDate}</p>
+      <h2>一、推广链接与佣金机制透明说明</h2>
+      <p>
+        为了维持 <strong>{SITE_CONFIG.brandName} ({SITE_CONFIG.domain})</strong> 评测实验室的服务器开销、测试套餐采购与持续原创内容输出，本站品牌数据库及评测文章中的外部品牌注册入口包含联盟推广链接（统一带有 <code>rel="nofollow sponsored noopener"</code> 属性）。
+      </p>
+      <blockquote>
+        <strong>合规提示：</strong>含推广链接，通过链接注册可能为本站带来佣金，但<strong>完全不影响用户支付价格</strong>（配合本站核实的优惠码还可享受对应折扣）。
+      </blockquote>
+      <h2>二、商业展示优先级与客观实测结论的严格隔离</h2>
+      <p>
+        在本站收录的 31 家独立机场品牌中，<strong><a href="/brands/guangsuyun/">光速云 (Guangsu Cloud)</a></strong> 为本站优先建设的商业推广合作品牌。但我们坚持以下三条评测底线：
+      </p>
+      <ul>
+        <li><strong>商业推广不等于单项跑分第一：</strong>在 2026-10-19 香港节点下载速度榜单中，闪跃（548Mbps）、Firefly（547Mbps）、微风网络（546Mbps）均排在光速云（529Mbps）之前，我们原原本本呈现真实实测顺序。</li>
+        <li><strong>如实披露短板与限制：</strong>即便对于主推合作品牌光速云，我们也在评测页醒目位置写明“ChatGPT 与 Gemini 并非全节点固定支持，需手动切换节点”以及“早期59GB与当期69GB历史套餐记录差异”。</li>
+        <li><strong>厂商宣传与独立实测严格区分：</strong>对于品牌方单方面宣称的“晚高峰零卡顿”、“1小时修复承诺”、“2000Mbps带宽”等表述，本站均明确加上「品牌资料显示」前缀并标记为 <code>Vendor Data</code>。</li>
+      </ul>
+    </div>
+  </div>
+</BaseLayout>

@@ -1,0 +1,26 @@
+---
+import ArticleLayout from './ArticleLayout.astro';
+import BrandInfrastructureSnapshot from '../components/charts/BrandInfrastructureSnapshot.astro';
+import NetworkPerformanceReport from '../components/charts/NetworkPerformanceReport.astro';
+import StreamingAvailabilityMatrix from '../components/charts/StreamingAvailabilityMatrix.astro';
+import { getBrandBySlug, PROMOTED_PRIMARY_BRAND } from '../data/brands';
+import type { UnifiedPost } from '../utils/content';
+import type { HeadingItem } from '../components/TableOfContents.astro';
+
+export interface Props {
+  post: UnifiedPost;
+  headings?: HeadingItem[];
+  relatedPosts?: UnifiedPost[];
+}
+
+const { post, headings = [], relatedPosts = [] } = Astro.props;
+const brandSlug = post.rawEntry?.data?.brandSlug || post.relatedBrands?.[0] || 'guangsuyun';
+const brand = getBrandBySlug(brandSlug) || PROMOTED_PRIMARY_BRAND;
+---
+
+<ArticleLayout post={post} headings={headings} relatedPosts={relatedPosts}>
+  <BrandInfrastructureSnapshot brand={brand} />
+  <slot />
+  <NetworkPerformanceReport brand={brand} />
+  <StreamingAvailabilityMatrix brand={brand} />
+</ArticleLayout>

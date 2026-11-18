@@ -1,0 +1,63 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumb from '../../components/Breadcrumb.astro';
+import ReviewCard from '../../components/cards/ReviewCard.astro';
+import BrandCard from '../../components/cards/BrandCard.astro';
+import { getAllPublishedPosts } from '../../utils/content';
+import { MEASURED_BRANDS } from '../../data/brands';
+
+const allPosts = await getAllPublishedPosts();
+const reviewPosts = allPosts.filter(
+  (p) => p.collection === 'reviews' || p.slug.includes('review') || p.slug.includes('ranking')
+);
+
+const breadcrumbs = [
+  { name: '首页', url: '/' },
+  { name: '深度品牌评测报告', url: '/reviews/' },
+];
+---
+
+<BaseLayout
+  title="2026 机场品牌深度评测中心：光速云与15家实测专线报告 | clash订阅"
+  description="汇总光速云等核心机场品牌的万字深度评测与 2026-10-19 五地实测报告，包含套餐价格核实、网络性能与流媒体解锁矩阵。"
+  breadcrumbs={breadcrumbs}
+>
+  <section class="bg-[#F7F9FC] border-b border-[#E5EAF1] py-10">
+    <div class="editorial-container">
+      <Breadcrumb items={breadcrumbs} />
+      <h1 class="text-3xl sm:text-4xl font-extrabold text-[#172033]">
+        深度品牌评测报告与实测档案
+      </h1>
+      <p class="mt-2 text-base text-[#64748B]">
+        结合 MDX 实验室图表组件与 31 家独立品牌评测页，提供可追溯来源的硬核评测。
+      </p>
+    </div>
+  </section>
+
+  <div class="editorial-container py-10 space-y-12">
+    <section>
+      <h2 class="text-2xl font-bold text-[#172033] mb-5">专题深度评测长文</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {reviewPosts.map((post) => (
+          <ReviewCard post={post} />
+        ))}
+      </div>
+    </section>
+
+    <section>
+      <div class="flex items-center justify-between mb-5">
+        <h2 class="text-2xl font-bold text-[#172033]">
+          具备 2026-10-19 五地实测数据的品牌评测页 ({MEASURED_BRANDS.length} 家)
+        </h2>
+        <a href="/brands/" class="text-sm font-semibold text-[#2563EB] hover:underline">
+          查看全部 31 家品牌 →
+        </a>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {MEASURED_BRANDS.map((brand) => (
+          <BrandCard brand={brand} />
+        ))}
+      </div>
+    </section>
+  </div>
+</BaseLayout>

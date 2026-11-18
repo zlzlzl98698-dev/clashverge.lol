@@ -1,0 +1,51 @@
+---
+import type { UnifiedPost } from '../../utils/content';
+import { getBrandBySlug } from '../../data/brands';
+
+export interface Props {
+  post: UnifiedPost;
+}
+
+const { post } = Astro.props;
+const brands = (post.relatedBrands || []).map((s) => getBrandBySlug(s)).filter(Boolean);
+---
+
+<article class="card-surface p-5 flex flex-col justify-between group bg-gradient-to-br from-white to-[#F7F9FC]">
+  <div>
+    <div class="flex items-center justify-between gap-2 mb-3">
+      <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200">
+        横向对比评测
+      </span>
+      <span class="text-xs font-mono text-[#64748B]">更新于 {post.updatedDate}</span>
+    </div>
+
+    {brands.length >= 2 && (
+      <div class="flex flex-wrap items-center gap-2 mb-3 p-2.5 rounded-xl bg-white border border-[#E5EAF1]">
+        {brands.slice(0, 4).map((b, i) => (
+          <div class="inline-flex items-center gap-1.5">
+            {i > 0 && <span class="text-[10px] font-mono font-bold text-[#64748B] px-1">VS</span>}
+            <span class="text-xs font-bold text-[#172033] px-2 py-0.5 rounded bg-[#F7F9FC] border border-[#E5EAF1]">
+              {b?.name}
+            </span>
+          </div>
+        ))}
+      </div>
+    )}
+
+    <h3 class="text-lg font-bold text-[#172033] group-hover:text-[#2563EB] transition-colors line-clamp-2 leading-snug">
+      <a href={post.url}>{post.title}</a>
+    </h3>
+
+    <p class="mt-2 text-sm text-[#64748B] line-clamp-2 leading-relaxed">
+      {post.excerpt}
+    </p>
+  </div>
+
+  <div class="mt-4 pt-3 border-t border-[#E5EAF1] flex items-center justify-between text-xs">
+    <span class="text-[#64748B]">对比维度：价格 / 测速 / 解锁 / 客户端</span>
+    <a href={post.url} class="font-semibold text-[#2563EB] group-hover:translate-x-0.5 transition-transform inline-flex items-center gap-1">
+      <span>查看对比结论</span>
+      <span>→</span>
+    </a>
+  </div>
+</article>

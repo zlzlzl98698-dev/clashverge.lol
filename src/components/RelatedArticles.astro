@@ -1,0 +1,29 @@
+---
+import type { UnifiedPost } from '../utils/content';
+import RelatedArticleCard from './cards/RelatedArticleCard.astro';
+
+export interface Props {
+  posts: UnifiedPost[];
+  title?: string;
+}
+
+const { posts = [], title = '延伸阅读与相关评测' } = Astro.props;
+---
+
+{
+  posts.length > 0 && (
+    <section class="my-10" aria-label={title}>
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-xl font-bold text-[#172033]">{title}</h2>
+        <a href="/articles/" class="text-sm font-medium text-[#2563EB] hover:underline">
+          浏览全部文章 →
+        </a>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {posts.slice(0, 6).map((post) => (
+          <RelatedArticleCard post={post} />
+        ))}
+      </div>
+    </section>
+  )
+}

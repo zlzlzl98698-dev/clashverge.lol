@@ -1,0 +1,68 @@
+---
+export interface HeadingItem {
+  depth: number;
+  slug: string;
+  text: string;
+}
+
+export interface Props {
+  headings: HeadingItem[];
+  mobileCollapsible?: boolean;
+}
+
+const { headings = [], mobileCollapsible = false } = Astro.props;
+const filteredHeadings = headings.filter((h) => h.depth === 2 || h.depth === 3);
+---
+
+{
+  filteredHeadings.length > 0 && (
+    <div class="card-surface p-5 bg-[#F7F9FC]/60">
+      {mobileCollapsible ? (
+        <details class="group">
+          <summary class="flex items-center justify-between cursor-pointer list-none font-bold text-sm text-[#172033]">
+            <span class="inline-flex items-center gap-2">
+              <svg class="w-4 h-4 text-[#2563EB]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7" />
+              </svg>
+              阅读目录 ({filteredHeadings.length})
+            </span>
+            <span class="text-xs text-[#2563EB] group-open:rotate-180 transition-transform">▼</span>
+          </summary>
+          <ul class="mt-3 pt-3 border-t border-[#E5EAF1] space-y-2 text-sm">
+            {filteredHeadings.map((h) => (
+              <li class={h.depth === 3 ? 'pl-4' : ''}>
+                <a
+                  href={`#${h.slug}`}
+                  class="block text-[#64748B] hover:text-[#2563EB] transition-colors line-clamp-1"
+                >
+                  {h.text}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </details>
+      ) : (
+        <div>
+          <h3 class="text-sm font-bold text-[#172033] mb-3 flex items-center gap-2">
+            <svg class="w-4 h-4 text-[#2563EB]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7" />
+            </svg>
+            <span>本文目录导航</span>
+          </h3>
+          <ul class="space-y-2 text-sm border-l-2 border-[#E5EAF1] pl-3">
+            {filteredHeadings.map((h) => (
+              <li class={h.depth === 3 ? 'pl-3 text-xs' : ''}>
+                <a
+                  href={`#${h.slug}`}
+                  class="block text-[#64748B] hover:text-[#2563EB] transition-colors leading-snug py-0.5"
+                >
+                  {h.text}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+  )
+}

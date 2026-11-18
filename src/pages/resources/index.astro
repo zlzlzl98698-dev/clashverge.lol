@@ -1,0 +1,46 @@
+---
+import CategoryLayout from '../../layouts/CategoryLayout.astro';
+import { getPrimarySection } from '../../data/navigation';
+import { getPostsByCategory } from '../../utils/content';
+
+const section = getPrimarySection('resources');
+const posts = await getPostsByCategory('resources');
+
+const faq = [
+  {
+    q: '如何快速判断一家机场是否存在同质化或数据缺口？',
+    a: '可以查阅本栏目的《机场风险情报与品牌数据审计报告》。我们公开了 31 家独立品牌的完整去重记录、5.6元档五家同规格品牌群组、推广链接格式异常提醒，以及历史价格差异校准记录。',
+  },
+  {
+    q: '遇到订阅拉取失败或节点全部 Timeout 时，应该先看哪篇文档？',
+    a: '先看《订阅问题》核对所持品牌是否为仅支持官方专属客户端的品牌（共8家无订阅链接），再按《Clash 故障排查》中的 5 步法检查系统时间同步与系统代理残留。',
+  },
+];
+---
+
+<CategoryLayout section={section} posts={posts} faq={faq}>
+  <div slot="category-lead" class="observatory-panel p-6">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 text-xs">
+      <div class="p-4 rounded-xl bg-[#111827] border border-slate-800">
+        <span class="font-mono text-emerald-400 block">AUDIT // 品牌数据去重</span>
+        <strong class="text-base text-white mt-1 block">32 条原始记录 → 31 家品牌</strong>
+        <p class="text-slate-400 mt-1">合并 Firefly 萤火虫历史重复记录，确保唯一路由。</p>
+      </div>
+      <div class="p-4 rounded-xl bg-[#111827] border border-slate-800">
+        <span class="font-mono text-amber-400 block">GROUP // 同质化识别</span>
+        <strong class="text-base text-white mt-1 block">5.6元档 5 品牌同规格群组</strong>
+        <p class="text-slate-400 mt-1">大佬云、闪电鼠、云界线、榴莲云、环球梯参数一致。</p>
+      </div>
+      <div class="p-4 rounded-xl bg-[#111827] border border-slate-800">
+        <span class="font-mono text-sky-400 block">CLIENT // 订阅支持分类</span>
+        <strong class="text-base text-white mt-1 block">20 家支持订阅 / 8 家纯专属端</strong>
+        <p class="text-slate-400 mt-1">避免软路由与小火箭用户误买无订阅链接品牌。</p>
+      </div>
+      <div class="p-4 rounded-xl bg-[#111827] border border-slate-800">
+        <span class="font-mono text-purple-400 block">TRUTH // 零虚构原则</span>
+        <strong class="text-base text-white mt-1 block">15 家未实测品牌诚实标注</strong>
+        <p class="text-slate-400 mt-1">缺省跑分统一标记为 NOT TESTED / 待核实。</p>
+      </div>
+    </div>
+  </div>
+</CategoryLayout>

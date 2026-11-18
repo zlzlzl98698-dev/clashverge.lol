@@ -1,0 +1,25 @@
+---
+import TopicLayout from '../../layouts/TopicLayout.astro';
+import { getPrimarySection, type SecondaryTopic } from '../../data/navigation';
+import { getPostsByCategory } from '../../utils/content';
+
+export async function getStaticPaths() {
+  const section = getPrimarySection('clash');
+  return section.topics.map((topic) => ({
+    params: { topic: topic.slug },
+    props: { topic },
+  }));
+}
+
+interface Props {
+  topic: SecondaryTopic;
+}
+
+const { topic } = Astro.props;
+const allCatPosts = await getPostsByCategory('clash');
+const topicPosts = allCatPosts.filter((p) => p.topicSlug === topic.slug);
+const finalTopicPosts = topicPosts.length > 0 ? topicPosts : allCatPosts.slice(0, 3);
+const relatedPosts = allCatPosts.filter((p) => !finalTopicPosts.some((tp) => tp.slug === p.slug));
+---
+
+<TopicLayout topic={topic} topicPosts={finalTopicPosts} relatedPosts={relatedPosts} />

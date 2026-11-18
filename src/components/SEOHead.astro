@@ -1,0 +1,272 @@
+---
+import { SITE_CONFIG } from '../data/site';
+
+export interface BreadcrumbItem {
+  name: string;
+  url: string;
+}
+
+export interface FAQItem {
+  q: string;
+  a: string;
+}
+
+export interface Props {
+  title: string;
+  description: string;
+  canonical?: string;
+  ogType?: 'website' | 'article';
+  ogImage?: string;
+  pubDate?: string;
+  updatedDate?: string;
+  author?: string;
+  breadcrumbs?: BreadcrumbItem[];
+  faq?: FAQItem[];
+  schemaType?: 'WebPage' | 'Article' | 'BlogPosting' | 'ItemList' | 'SoftwareApplication';
+  itemListElements?: { name: string; url: string; description?: string }[];
+  softwareInfo?: {
+    name: string;
+    operatingSystem: string;
+    applicationCategory?: string;
+    price?: string;
+  };
+  reviewInfo?: {
+    itemName: string;
+    ratingValue: string;
+    bestRating?: string;
+    reviewBody: string;
+  };
+  noindex?: boolean;
+}
+
+const {
+  title,
+  description,
+  canonical,
+  ogType = 'website',
+  ogImage = '/images/covers/default-editorial.png',
+  pubDate,
+  updatedDate = SITE_CONFIG.updatedDate,
+  author = SITE_CONFIG.author.name,
+  breadcrumbs = [],
+  faq = [],
+  schemaType = 'WebPage',
+  itemListElements = [],
+  softwareInfo,
+  reviewInfo,
+  noindex = false,
+} = Astro.props;
+
+const rawPathname = Astro.url.pathname.endsWith('/')
+  ? Astro.url.pathname
+  : `${Astro.url.pathname}/`;
+const canonicalUrl = canonical || new URL(rawPathname, SITE_CONFIG.siteUrl).toString();
+const pngOgImage = ogImage.endsWith('.svg')
+  ? ogImage.replace(/\.svg$/, '.png')
+  : ogImage;
+const fullOgImage = pngOgImage.startsWith('http')
+  ? pngOgImage
+  : new URL(pngOgImage, SITE_CONFIG.siteUrl).toString();
+
+const finalTitle = title.includes(SITE_CONFIG.brandName)
+  ? title
+  : `${title} | ${SITE_CONFIG.brandName}`;
+
+const jsonLdGraph: any[] = [
+  {
+    '@type': 'Organization',
+    '@id': `${SITE_CONFIG.siteUrl}/#organization`,
+    name: SITE_CONFIG.brandName,
+    url: `${SITE_CONFIG.siteUrl}/`,
+    logo: {
+      '@type': 'ImageObject',
+      url: `${SITE_CONFIG.siteUrl}/favicon.svg`,
+    },
+    description: SITE_CONFIG.description,
+  },
+  {
+    '@type': 'WebSite',
+    '@id': `${SITE_CONFIG.siteUrl}/#website`,
+    url: `${SITE_CONFIG.siteUrl}/`,
+    name: SITE_CONFIG.brandName,
+    inLanguage: SITE_CONFIG.language,
+    publisher: {
+      '@id': `${SITE_CONFIG.siteUrl}/#organization`,
+    },
+    potentialAction: {
+      '@type': 'SearchAction',
+      target: `${SITE_CONFIG.siteUrl}/search/?q={search_term_string}`,
+      'query-input': 'required name=search_term_string',
+    },
+  },
+];
+
+if (breadcrumbs.length > 0) {
+  jsonLdGraph.push({
+    '@type': 'BreadcrumbList',
+    '@id': `${canonicalUrl}#breadcrumb`,
+    itemListElement: breadcrumbs.map((item, idx) => ({
+      '@type': 'ListItem',
+      position: idx + 1,
+      name: item.name,
+      item: item.url.startsWith('http')
+        ? item.url
+        : new URL(item.url, SITE_CONFIG.siteUrl).toString(),
+    })),
+  });
+}
+
+if (schemaType === 'Article' || schemaType === 'BlogPosting') {
+  jsonLdGraph.push({
+    '@type': schemaType,
+    '@id': `${canonicalUrl}#article`,
+    headline: title,
+    description,
+    image: [fullOgImage],
+    datePublished: pubDate || updatedDate,
+    dateModified: updatedDate,
+    inLanguage: SITE_CONFIG.language,
+    author: {
+      '@type': 'Organization',
+      name: author,
+      url: `${SITE_CONFIG.siteUrl}/`,
+    },
+    publisher: {
+      '@id': `${SITE_CONFIG.siteUrl}/#organization`,
+    },
+    mainEntityOfPage: {
+      '@type': 'WebPage',
+      '@id': canonicalUrl,
+    },
+  });
+}
+
+if (schemaType === 'ItemList' && itemListElements.length > 0) {
+  jsonLdGraph.push({
+    '@type': 'ItemList',
+    '@id': `${canonicalUrl}#itemlist`,
+    name: title,
+    description,
+    numberOfItems: itemListElements.length,
+    itemListElement: itemListElements.map((el, idx) => ({
+      '@type': 'ListItem',
+      position: idx + 1,
+      name: el.name,
+      url: el.url.startsWith('http')
+        ? el.url
+        : new URL(el.url, SITE_CONFIG.siteUrl).toString(),
+      description: el.description,
+    })),
+  });
+}
+
+if (schemaType === 'SoftwareApplication' && softwareInfo) {
+  jsonLdGraph.push({
+    '@type': 'SoftwareApplication',
+    name: softwareInfo.name,
+    operatingSystem: softwareInfo.operatingSystem,
+    applicationCategory: softwareInfo.applicationCategory || 'UtilitiesApplication',
+    offers: {
+      '@type': 'Offer',
+      price: softwareInfo.price || '0',
+      priceCurrency: 'CNY',
+    },
+  });
+}
+
+if (reviewInfo) {
+  jsonLdGraph.push({
+    '@type': 'Review',
+    '@id': `${canonicalUrl}#review`,
+    itemReviewed: {
+      '@type': 'Service',
+      name: reviewInfo.itemName,
+      description: description,
+    },
+    author: {
+      '@type': 'Organization',
+      name: SITE_CONFIG.brandName,
+      url: SITE_CONFIG.siteUrl,
+    },
+    reviewRating: {
+      '@type': 'Rating',
+      ratingValue: reviewInfo.ratingValue,
+      bestRating: reviewInfo.bestRating || '5',
+      worstRating: '1',
+    },
+    reviewBody: reviewInfo.reviewBody,
+  });
+}
+
+if (faq.length > 0) {
+  jsonLdGraph.push({
+    '@type': 'FAQPage',
+    '@id': `${canonicalUrl}#faq`,
+    mainEntity: faq.map((f) => ({
+      '@type': 'Question',
+      name: f.q,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: f.a,
+      },
+    })),
+  });
+}
+
+const structuredData = {
+  '@context': 'https://schema.org',
+  '@graph': jsonLdGraph,
+};
+---
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>{finalTitle}</title>
+<meta name="description" content={description} />
+<link rel="canonical" href={canonicalUrl} />
+<link rel="icon" type="image/png" href="/favicon.png" />
+<link rel="apple-touch-icon" href="/favicon.png" />
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+<meta name="generator" content={Astro.generator} />
+{noindex ? (
+  <meta name="robots" content="noindex, nofollow" />
+) : (
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
+)}
+
+<!-- Search Engine Webmaster Verification -->
+{SITE_CONFIG.verification?.google && (
+  <meta name="google-site-verification" content={SITE_CONFIG.verification.google} />
+)}
+{SITE_CONFIG.verification?.bing && (
+  <meta name="msvalidate.01" content={SITE_CONFIG.verification.bing} />
+)}
+{SITE_CONFIG.verification?.shenma && (
+  <meta name="shenma-site-verification" content={SITE_CONFIG.verification.shenma} />
+)}
+{SITE_CONFIG.verification?.baidu && (
+  <meta name="baidu-site-verification" content={SITE_CONFIG.verification.baidu} />
+)}
+
+<!-- Open Graph -->
+<meta property="og:type" content={ogType} />
+<meta property="og:site_name" content={SITE_CONFIG.brandName} />
+<meta property="og:locale" content={SITE_CONFIG.locale} />
+<meta property="og:title" content={finalTitle} />
+<meta property="og:description" content={description} />
+<meta property="og:url" content={canonicalUrl} />
+<meta property="og:image" content={fullOgImage} />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:type" content="image/png" />
+{pubDate && <meta property="article:published_time" content={pubDate} />}
+{updatedDate && <meta property="article:modified_time" content={updatedDate} />}
+
+<!-- Twitter / X Card -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content={finalTitle} />
+<meta name="twitter:description" content={description} />
+<meta name="twitter:image" content={fullOgImage} />
+
+<!-- JSON-LD Structured Data -->
+<script type="application/ld+json" set:html={JSON.stringify(structuredData)} />

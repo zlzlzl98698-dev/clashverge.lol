@@ -1,0 +1,108 @@
+---
+import type { AirportBrand } from '../data/brands';
+import { SITE_CONFIG } from '../data/site';
+
+export interface Props {
+  brand: AirportBrand;
+  showCta?: boolean;
+}
+
+const { brand, showCta = true } = Astro.props;
+---
+
+<div class="my-8 card-surface overflow-hidden">
+  <div class="px-5 py-4 bg-[#F7F9FC] border-b border-[#E5EAF1] flex flex-wrap items-center justify-between gap-3">
+    <div>
+      <h3 class="text-lg font-bold text-[#172033]">
+        {brand.name} 官方套餐价格与流量周期明细表
+      </h3>
+      <p class="text-xs text-[#64748B] mt-0.5">
+        数据核实日期：{brand.verifiedDate} · 线路：{brand.lineType} · 优惠码：
+        <code class="px-1.5 py-0.5 rounded bg-[#EFF6FF] text-[#2563EB] font-mono font-semibold">
+          {brand.couponCode}
+        </code>
+      </p>
+    </div>
+    <span class="badge-category">
+      {brand.verificationStatus === 'Measured_2026_10' ? '2026-10 套餐已核实' : '档案记录对照'}
+    </span>
+  </div>
+
+  {brand.historicalDiscrepancyNote && (
+    <div class="px-5 py-3 bg-amber-50/80 border-b border-amber-200/70 text-xs text-amber-900 leading-relaxed">
+      <strong>历史数据核实说明：</strong>
+      {brand.historicalDiscrepancyNote}
+    </div>
+  )}
+
+  <div class="overflow-x-auto">
+    <table class="w-full text-left border-collapse text-sm">
+      <thead>
+        <tr class="bg-[#F7F9FC]/60 text-[#172033] border-b border-[#E5EAF1]">
+          <th class="py-3 px-4 font-semibold whitespace-nowrap">套餐名称</th>
+          <th class="py-3 px-4 font-semibold whitespace-nowrap">计费周期</th>
+          <th class="py-3 px-4 font-semibold whitespace-nowrap">标价与折算说明</th>
+          <th class="py-3 px-4 font-semibold whitespace-nowrap">流量额度</th>
+          <th class="py-3 px-4 font-semibold whitespace-nowrap">流量重置规则</th>
+          <th class="py-3 px-4 font-semibold">备注与优惠限制</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-[#E5EAF1]">
+        {brand.plans.map((plan) => (
+          <tr class="hover:bg-[#F7F9FC]/50 transition-colors">
+            <td class="py-3 px-4 font-semibold text-[#172033] whitespace-nowrap">{plan.name}</td>
+            <td class="py-3 px-4 whitespace-nowrap">
+              <span
+                class:list={[
+                  'px-2 py-0.5 rounded text-xs font-medium',
+                  plan.billingCycle === '一次性付费'
+                    ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                    : plan.billingCycle === '年付'
+                      ? 'bg-blue-50 text-blue-700 border border-blue-200'
+                      : 'bg-slate-100 text-slate-700',
+                ]}
+              >
+                {plan.billingCycle}
+              </span>
+            </td>
+            <td class="py-3 px-4 whitespace-nowrap">
+              <span class="font-bold text-[#2563EB] font-mono text-base">{plan.price}</span>
+              {plan.monthlyEquivalent && (
+                <span class="block text-[11px] text-[#64748B]">({plan.monthlyEquivalent}，非单月价)</span>
+              )}
+            </td>
+            <td class="py-3 px-4 font-mono font-medium text-[#172033] whitespace-nowrap">
+              {plan.traffic}
+            </td>
+            <td class="py-3 px-4 text-xs text-[#64748B] whitespace-nowrap">{plan.resetPolicy}</td>
+            <td class="py-3 px-4 text-xs text-[#64748B]">{plan.notes || '以官网当前结算页显示为准'}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+
+  {showCta && (
+    <div class="px-5 py-4 bg-[#F7F9FC] border-t border-[#E5EAF1] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+      <p class="text-xs text-[#64748B] leading-relaxed">
+        {SITE_CONFIG.shortDisclosure} 建议首次优先选择月付或小额套餐实测本地晚高峰。
+      </p>
+      <div class="flex items-center gap-2.5 shrink-0">
+        <a
+          href={`/brands/${brand.slug}/`}
+          class="px-3.5 py-2 rounded-lg border border-[#E5EAF1] bg-white text-xs font-semibold text-[#172033] hover:border-[#2563EB] hover:text-[#2563EB] transition-colors"
+        >
+          查看{brand.name}评测详情
+        </a>
+        <a
+          href={`/go/${brand.slug}/`}
+          target="_blank"
+          rel="nofollow sponsored noopener"
+          class="px-4 py-2 rounded-lg bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-xs font-semibold transition-colors"
+        >
+          前往 {brand.name} 官网查看 →
+        </a>
+      </div>
+    </div>
+  )}
+</div>

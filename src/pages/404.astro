@@ -1,0 +1,42 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import SearchBox from '../components/SearchBox.astro';
+---
+
+<BaseLayout
+  title="404 页面未找到 | clash订阅"
+  description="您访问的页面不存在或已被移动，请通过站内搜索或四大主导航继续浏览。"
+  noindex={true}
+  pagefindIgnore={true}
+>
+  <div class="editorial-container py-20 max-w-2xl text-center space-y-6">
+    <span class="inline-block px-3.5 py-1 rounded-full bg-[#EFF6FF] text-[#2563EB] font-mono text-sm font-bold">
+      HTTP 404 // PAGE NOT FOUND
+    </span>
+    <h1 class="text-3xl sm:text-4xl font-extrabold text-[#172033]">
+      抱歉，您访问的页面不存在或路径已变更
+    </h1>
+    <p class="text-base text-[#64748B]">
+      您可以直接使用下方站内全文搜索查找目标文章与品牌，或返回四大核心栏目：
+    </p>
+
+    <div class="max-w-lg mx-auto">
+      <SearchBox compact={false} />
+    </div>
+
+    <div class="pt-4 flex flex-wrap justify-center gap-3">
+      <a href="/" class="px-5 py-2.5 rounded-xl bg-[#2563EB] text-white text-sm font-semibold hover:bg-[#1D4ED8]">
+        返回网站首页
+      </a>
+      <a href="/airport/" class="px-4 py-2.5 rounded-xl border border-[#E5EAF1] bg-white text-sm font-semibold text-[#172033] hover:border-[#2563EB]">
+        机场推荐专栏
+      </a>
+      <a href="/brands/" class="px-4 py-2.5 rounded-xl border border-[#E5EAF1] bg-white text-sm font-semibold text-[#172033] hover:border-[#2563EB]">
+        31家品牌数据库
+      </a>
+      <a href="/clash/" class="px-4 py-2.5 rounded-xl border border-[#E5EAF1] bg-white text-sm font-semibold text-[#172033] hover:border-[#2563EB]">
+        Clash客户端教程
+      </a>
+    </div>
+  </div>
+</BaseLayout>

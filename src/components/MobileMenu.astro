@@ -1,0 +1,73 @@
+---
+import { PRIMARY_NAVIGATION } from '../data/navigation';
+
+const currentPath = Astro.url.pathname;
+---
+
+<div
+  id="mobile-menu-drawer"
+  class="hidden lg:hidden border-t border-[#E5EAF1] bg-white px-4 pt-3 pb-6 space-y-3 max-h-[82vh] overflow-y-auto"
+  aria-label="移动端导航菜单"
+>
+  <div class="flex items-center gap-2 pb-2 border-b border-[#E5EAF1]">
+    <a
+      href="/brands/"
+      class="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-[#EFF6FF] text-[#2563EB] text-sm font-semibold"
+    >
+      <span>31家品牌评测数据库</span>
+    </a>
+    <a
+      href="/search/"
+      class="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-[#E5EAF1] text-[#172033] text-sm font-medium"
+    >
+      <span>站内搜索</span>
+    </a>
+  </div>
+
+  {
+    PRIMARY_NAVIGATION.map((section) => {
+      const isActive = currentPath.startsWith(section.url);
+      return (
+        <details class="group rounded-xl border border-[#E5EAF1] bg-[#F7F9FC]/60" open={isActive}>
+          <summary class="flex items-center justify-between px-4 py-3 cursor-pointer list-none font-semibold text-[#172033]">
+            <div class="flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-[#2563EB]"></span>
+              <span>{section.name}</span>
+            </div>
+            <svg
+              class="w-4 h-4 text-[#64748B] group-open:rotate-180 transition-transform"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </summary>
+          <div class="px-3 pb-3 pt-1 border-t border-[#E5EAF1] bg-white rounded-b-xl">
+            <a
+              href={section.url}
+              class="block px-3 py-2 mb-1 text-xs font-semibold text-[#2563EB] bg-[#EFF6FF]/60 rounded-lg"
+            >
+              进入「{section.name}」专题总览 →
+            </a>
+            <div class="grid grid-cols-2 gap-1.5">
+              {section.topics.map((topic) => (
+                <a
+                  href={topic.url}
+                  class:list={[
+                    'px-3 py-2 rounded-lg text-sm transition-colors',
+                    currentPath === topic.url
+                      ? 'bg-[#2563EB] text-white font-medium'
+                      : 'text-[#172033] hover:bg-[#F7F9FC]',
+                  ]}
+                >
+                  {topic.name}
+                </a>
+              ))}
+            </div>
+          </div>
+        </details>
+      );
+    })
+  }
+</div>

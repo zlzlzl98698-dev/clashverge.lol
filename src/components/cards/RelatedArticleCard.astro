@@ -1,0 +1,28 @@
+---
+import type { UnifiedPost } from '../../utils/content';
+
+export interface Props {
+  post: UnifiedPost;
+}
+
+const { post } = Astro.props;
+---
+
+<article class="card-surface p-4 flex flex-col justify-between group">
+  <div>
+    <div class="flex items-center justify-between gap-2 text-[11px] text-[#64748B] mb-1.5">
+      <span class="badge-category">{post.categoryLabel}</span>
+      <time datetime={post.updatedDate}>{post.updatedDate}</time>
+    </div>
+    <h3 class="text-sm sm:text-base font-bold text-[#172033] group-hover:text-[#2563EB] transition-colors line-clamp-2 leading-snug">
+      <a href={post.url}>{post.title}</a>
+    </h3>
+    <p class="mt-1.5 text-xs text-[#64748B] line-clamp-2 leading-relaxed">
+      {post.excerpt}
+    </p>
+  </div>
+  <div class="mt-3 pt-2 border-t border-[#E5EAF1] flex items-center justify-between text-[11px] text-[#64748B]">
+    <span>阅读 {post.readingTime}</span>
+    <a href={post.url} class="font-semibold text-[#2563EB]">阅读 →</a>
+  </div>
+</article>

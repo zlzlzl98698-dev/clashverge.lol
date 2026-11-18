@@ -1,0 +1,36 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumb from '../../components/Breadcrumb.astro';
+import { SITE_CONFIG } from '../../data/site';
+
+const breadcrumbs = [
+  { name: '首页', url: '/' },
+  { name: '使用声明与免责条款', url: '/disclaimer/' },
+];
+---
+
+<BaseLayout
+  title="使用声明与免责条款 (Disclaimer) | clash订阅"
+  description="clash订阅（clashverge.lol）关于网络技术知识科普、评测数据时效性及合规使用的免责声明。"
+  breadcrumbs={breadcrumbs}
+>
+  <div class="editorial-container py-12 max-w-4xl">
+    <Breadcrumb items={breadcrumbs} />
+    <h1 class="text-3xl font-extrabold text-[#172033] mb-6">使用声明与免责条款 (Disclaimer)</h1>
+    <div class="article-prose card-surface p-6 sm:p-8">
+      <p>生效与更新日期：{SITE_CONFIG.updatedDate}</p>
+      <h2>一、内容定位与合规使用原则</h2>
+      <p>
+        <strong>{SITE_CONFIG.brandName} ({SITE_CONFIG.domain})</strong> 是专注于跨境网络架构解析、开源代理客户端配置教程与第三方服务商公开数据审计的技术知识媒体。本站所有教程与评测仅供跨境办公、学术科研、软件开发及海外合规信息检索参考，请读者严格遵守所在地法律法规。
+      </p>
+      <h2>二、评测数据时效性与客观边界</h2>
+      <p>
+        本站展示的节点延迟、下载速率（如 2026-10-19 测试批次）及流媒体/AI 解锁状态，均代表特定测试日期与测试网络环境下的客观记录，不构成对任何第三方品牌未来长期服务质量的担保。对于缺乏独立实测数据的品牌，本站统一标记为「待核实（Not Tested / Pending）」。
+      </p>
+      <h2>三、资金风控与消费建议</h2>
+      <p>
+        本站并非任何机场或 VPN 品牌的运营方或客服中心，不介入第三方平台的具体账单结算与售后纠纷。由于此类虚拟服务普遍不支持无理由退款，我们强烈建议用户首次体验任何品牌时优先选择月付或小额套餐实测，切勿盲目购买多年期大额套餐。
+      </p>
+    </div>
+  </div>
+</BaseLayout>

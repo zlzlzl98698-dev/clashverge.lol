@@ -1,0 +1,242 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import Breadcrumb from '../components/Breadcrumb.astro';
+import TableOfContents, { type HeadingItem } from '../components/TableOfContents.astro';
+import FAQSection from '../components/FAQSection.astro';
+import RelatedArticles from '../components/RelatedArticles.astro';
+import BrandCTA from '../components/BrandCTA.astro';
+import PricingTable from '../components/PricingTable.astro';
+import { getBrandBySlug, PROMOTED_PRIMARY_BRAND } from '../data/brands';
+import { getPrimarySection } from '../data/navigation';
+import type { UnifiedPost } from '../utils/content';
+
+export interface Props {
+  post: UnifiedPost;
+  headings?: HeadingItem[];
+  relatedPosts?: UnifiedPost[];
+  prevPost?: UnifiedPost;
+  nextPost?: UnifiedPost;
+}
+
+const {
+  post,
+  headings = [],
+  relatedPosts = [],
+  prevPost,
+  nextPost,
+} = Astro.props;
+
+const primarySection = getPrimarySection(post.category);
+const primaryBrandSlug = post.relatedBrands?.[0] || 'guangsuyun';
+const primaryBrand = getBrandBySlug(primaryBrandSlug) || PROMOTED_PRIMARY_BRAND;
+const relatedBrandObjects = (post.relatedBrands || ['guangsuyun'])
+  .map((s) => getBrandBySlug(s))
+  .filter(Boolean);
+
+const breadcrumbs = [
+  { name: '首页', url: '/' },
+  { name: primarySection.name, url: primarySection.url },
+  { name: post.title, url: post.url },
+];
+---
+
+<BaseLayout
+  title={post.seoTitle}
+  description={post.description}
+  ogType="article"
+  ogImage={post.cover}
+  pubDate={post.pubDate}
+  updatedDate={post.updatedDate}
+  author={post.author}
+  breadcrumbs={breadcrumbs}
+  faq={post.faq}
+  schemaType="BlogPosting"
+>
+  <div class="editorial-container py-8 sm:py-12">
+    <!-- 1. Breadcrumb -->
+    <Breadcrumb items={breadcrumbs} />
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-start">
+      <!-- Left Main Article Column -->
+      <article class="lg:col-span-8 min-w-0">
+        <!-- 2. Category & Meta Badges -->
+        <div class="flex flex-wrap items-center gap-2 mb-4">
+          <a href={primarySection.url} class="badge-category hover:bg-[#2563EB] hover:text-white transition-colors">
+            {post.categoryLabel}
+          </a>
+          {post.pillar && (
+            <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">
+              Pillar 核心支柱指南
+            </span>
+          )}
+          <span class="badge-neutral">关键词: {post.primaryKeyword}</span>
+          <span class="badge-neutral">意图: {post.searchIntent}</span>
+        </div>
+
+        <!-- 3. H1 Title -->
+        <h1 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-[#172033] leading-tight">
+          {post.title}
+        </h1>
+
+        <!-- 4. Excerpt / Answer-First Summary Box -->
+        <div class="mt-4 p-4 sm:p-5 rounded-xl bg-[#F7F9FC] border-l-4 border-[#2563EB] text-sm sm:text-base text-[#172033]/90 leading-relaxed">
+          <strong class="text-[#2563EB] block mb-1 text-xs font-mono uppercase tracking-wider">
+            Answer-First 核心结论摘要
+          </strong>
+          {post.excerpt}
+        </div>
+
+        <!-- 5. Author & Dates -->
+        <div class="mt-4 pb-5 border-b border-[#E5EAF1] flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-[#64748B]">
+          <span class="inline-flex items-center gap-1.5">
+            <img src="/images/avatar.png" alt={post.author} class="w-4 h-4 rounded-full object-cover" />
+            作者：<strong class="text-[#172033]">{post.author}</strong>
+          </span>
+          <span>发布时间：<time datetime={post.pubDate}>{post.pubDate}</time></span>
+          <span>最近更新：<time datetime={post.updatedDate} class="text-[#2563EB] font-semibold">{post.updatedDate}</time></span>
+          <span>价格核实：{post.priceVerifiedDate}</span>
+          <span>预计阅读：{post.readingTime}</span>
+        </div>
+
+        <!-- 6. Cover Image -->
+        <figure class="my-6 rounded-2xl overflow-hidden border border-[#E5EAF1] bg-[#0B1120]">
+          <img
+            src={post.cover}
+            alt={post.coverAlt}
+            width="800"
+            height="450"
+            loading="eager"
+            class="w-full h-auto object-cover"
+          />
+        </figure>
+
+        <!-- 7. Mobile Collapsible Table of Contents -->
+        <div class="lg:hidden my-6">
+          <TableOfContents headings={headings} mobileCollapsible={true} />
+        </div>
+
+        <!-- 8. Article Prose Body -->
+        <div class="article-prose mt-6">
+          <slot />
+        </div>
+
+        <!-- 9. Data Table / Brand Pricing Reference -->
+        {primaryBrand && (
+          <PricingTable brand={primaryBrand} showCta={true} />
+        )}
+
+        <!-- 10. FAQ Section -->
+        {post.faq && post.faq.length > 0 && (
+          <FAQSection items={post.faq} />
+        )}
+
+        <!-- 11. Content Sources & Verification Log -->
+        <section class="my-8 p-5 rounded-xl bg-[#F7F9FC] border border-[#E5EAF1] text-xs text-[#64748B] space-y-2">
+          <h2 class="text-sm font-bold text-[#172033]">资料来源与数据核实记录</h2>
+          <ul class="list-disc pl-5 space-y-1">
+            {post.sources.map((src) => (
+              <li>
+                <strong class="text-[#172033]">{src.label}：</strong>
+                <span>{src.note}</span>
+              </li>
+            ))}
+            <li>
+              <strong class="text-[#172033]">最后校验日期：</strong>
+              <span>{post.updatedDate}（价格与测速基准日：{post.testDate}）</span>
+            </li>
+          </ul>
+        </section>
+
+        <!-- 14. Compliant Brand Conversion Module -->
+        <BrandCTA brandSlug={primaryBrandSlug} contextTitle="本文关联专线方案与官方入口" />
+
+        <!-- 13. Next / Previous Reading Suggestions -->
+        {(prevPost || nextPost) && (
+          <nav aria-label="上下篇阅读导航" class="my-8 grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {prevPost ? (
+              <a href={prevPost.url} class="card-surface p-4 block group">
+                <span class="text-xs text-[#64748B]">← 上一篇阅读</span>
+                <p class="text-sm font-bold text-[#172033] group-hover:text-[#2563EB] mt-1 line-clamp-1">
+                  {prevPost.title}
+                </p>
+              </a>
+            ) : <div />}
+            {nextPost ? (
+              <a href={nextPost.url} class="card-surface p-4 block text-right group">
+                <span class="text-xs text-[#64748B]">下一篇阅读 →</span>
+                <p class="text-sm font-bold text-[#172033] group-hover:text-[#2563EB] mt-1 line-clamp-1">
+                  {nextPost.title}
+                </p>
+              </a>
+            ) : <div />}
+          </nav>
+        )}
+
+        <!-- 12. Related Articles -->
+        <RelatedArticles posts={relatedPosts} />
+      </article>
+
+      <!-- Right Sticky Sidebar (Desktop) -->
+      <aside class="hidden lg:block lg:col-span-4 space-y-6 sticky top-20">
+        <!-- Table of Contents -->
+        <TableOfContents headings={headings} />
+
+        <!-- Related Brands Quick Card -->
+        <div class="card-surface p-5 space-y-3.5">
+          <div class="flex items-center justify-between">
+            <h3 class="text-sm font-bold text-[#172033]">本文提及品牌档案</h3>
+            <a href="/brands/" class="text-xs text-[#2563EB] hover:underline">全部 31 家 →</a>
+          </div>
+          <div class="space-y-2.5">
+            {relatedBrandObjects.slice(0, 4).map((b) => b && (
+              <div class="p-3 rounded-xl bg-[#F7F9FC] border border-[#E5EAF1] flex items-center justify-between gap-2">
+                <div class="min-w-0">
+                  <a href={`/brands/${b.slug}/`} class="text-sm font-bold text-[#172033] hover:text-[#2563EB] block truncate">
+                    {b.name}
+                  </a>
+                  <span class="text-[11px] text-[#64748B] block truncate">
+                    {b.lineType} · {b.startingPriceLabel.split('|')[0]}
+                  </span>
+                </div>
+                <div class="flex items-center gap-1.5 shrink-0">
+                  <a
+                    href={`/brands/${b.slug}/`}
+                    class="px-2 py-1 rounded bg-white border border-[#E5EAF1] text-[11px] font-medium text-[#172033] hover:text-[#2563EB]"
+                  >
+                    评测
+                  </a>
+                  <a
+                    href={`/go/${b.slug}/`}
+                    target="_blank"
+                    rel="nofollow sponsored noopener"
+                    class="px-2.5 py-1 rounded bg-[#2563EB] text-white text-[11px] font-semibold hover:bg-[#1D4ED8]"
+                  >
+                    官网
+                  </a>
+                </div>
+              </div>
+            ))}
+          </div>
+          <p class="text-[10px] text-[#64748B] leading-relaxed">
+            含推广链接，通过链接注册可能为本站带来佣金，不影响用户支付价格。
+          </p>
+        </div>
+
+        <!-- Topic Cluster Navigation -->
+        <div class="card-surface p-5 space-y-3">
+          <h3 class="text-sm font-bold text-[#172033]">所属专题与子栏目</h3>
+          <div class="flex flex-wrap gap-1.5">
+            {primarySection.topics.map((t) => (
+              <a
+                href={t.url}
+                class="px-2.5 py-1 rounded-md text-xs bg-[#F7F9FC] hover:bg-[#EFF6FF] text-[#172033] hover:text-[#2563EB] border border-[#E5EAF1] transition-colors"
+              >
+                {t.name}
+              </a>
+            ))}
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+</BaseLayout>

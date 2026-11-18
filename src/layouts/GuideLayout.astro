@@ -1,0 +1,30 @@
+---
+import ArticleLayout from './ArticleLayout.astro';
+import type { UnifiedPost } from '../utils/content';
+import type { HeadingItem } from '../components/TableOfContents.astro';
+
+export interface Props {
+  post: UnifiedPost;
+  headings?: HeadingItem[];
+  relatedPosts?: UnifiedPost[];
+}
+
+const { post, headings = [], relatedPosts = [] } = Astro.props;
+const platform = post.rawEntry?.data?.platform || 'Windows / macOS / Android / iOS';
+const clientName = post.rawEntry?.data?.clientName || 'Clash Verge Rev';
+---
+
+<ArticleLayout post={post} headings={headings} relatedPosts={relatedPosts}>
+  <div class="my-6 p-4 rounded-xl bg-[#0F172A] text-slate-100 border border-slate-800 not-prose flex flex-wrap items-center justify-between gap-3 text-xs font-mono">
+    <div class="flex flex-wrap items-center gap-3">
+      <span class="px-2.5 py-1 rounded bg-blue-600 text-white font-bold">
+        目标客户端: {clientName}
+      </span>
+      <span class="text-slate-300">适用系统: {platform}</span>
+    </div>
+    <a href="/clash/download/" class="text-sky-400 hover:underline">
+      核对安装包架构说明 →
+    </a>
+  </div>
+  <slot />
+</ArticleLayout>

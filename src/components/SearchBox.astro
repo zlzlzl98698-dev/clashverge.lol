@@ -1,0 +1,48 @@
+---
+export interface Props {
+  placeholder?: string;
+  compact?: boolean;
+}
+
+const {
+  placeholder = '输入关键词搜索：如 光速云、IEPL、Clash Verge 订阅、Timeout超时...',
+  compact = false,
+} = Astro.props;
+---
+
+<form action="/search/" method="get" class="w-full" role="search">
+  <div class="relative flex items-center">
+    <svg
+      class="w-5 h-5 text-[#64748B] absolute left-3.5 pointer-events-none"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+    >
+      <path
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+      />
+    </svg>
+    <input
+      type="search"
+      name="q"
+      placeholder={placeholder}
+      aria-label="站内搜索关键词"
+      class:list={[
+        'w-full pl-11 pr-24 rounded-xl border border-[#E5EAF1] bg-white text-[#172033] placeholder-[#64748B]/70 focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/15 transition-all',
+        compact ? 'py-2.5 text-sm' : 'py-3.5 text-base shadow-card',
+      ]}
+    />
+    <button
+      type="submit"
+      class:list={[
+        'absolute right-1.5 rounded-lg bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-semibold transition-colors',
+        compact ? 'px-3.5 py-1.5 text-xs' : 'px-4 py-2 text-sm',
+      ]}
+    >
+      搜索
+    </button>
+  </div>
+</form>

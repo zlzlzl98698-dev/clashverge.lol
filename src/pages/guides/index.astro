@@ -1,0 +1,84 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumb from '../../components/Breadcrumb.astro';
+import GuideCard from '../../components/cards/GuideCard.astro';
+import { getAllPublishedPosts } from '../../utils/content';
+import { PROXY_CLIENTS, CLIENT_PLATFORMS } from '../../data/clients';
+
+const allPosts = await getAllPublishedPosts();
+const guidePosts = allPosts.filter(
+  (p) => p.collection === 'guides' || p.category === 'clash' || p.slug.includes('guide')
+);
+
+const breadcrumbs = [
+  { name: '首页', url: '/' },
+  { name: '客户端配置与排障教程', url: '/guides/' },
+];
+---
+
+<BaseLayout
+  title="2026 Clash Verge Rev 与全平台代理客户端配置教程中心 | clash订阅"
+  description="涵盖 Windows、macOS、Android、iOS、Linux、OpenWrt 软路由 22 款代理客户端下载、订阅导入、Fake-IP DNS 配置与 Timeout 故障排查教程。"
+  breadcrumbs={breadcrumbs}
+>
+  <section class="bg-[#F7F9FC] border-b border-[#E5EAF1] py-10">
+    <div class="editorial-container">
+      <Breadcrumb items={breadcrumbs} />
+      <h1 class="text-3xl sm:text-4xl font-extrabold text-[#172033]">
+        客户端配置教程与故障排查手册
+      </h1>
+      <p class="mt-2 text-base text-[#64748B]">
+        基于《2026机场代理客户端大全》核实编写，覆盖从下载安装、订阅导入到高阶分流的全流程。
+      </p>
+    </div>
+  </section>
+
+  <div class="editorial-container py-10 space-y-12">
+    <section>
+      <h2 class="text-2xl font-bold text-[#172033] mb-5">核心实操指南</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {guidePosts.map((post) => (
+          <GuideCard post={post} />
+        ))}
+      </div>
+    </section>
+
+    <section>
+      <h2 class="text-2xl font-bold text-[#172033] mb-5">
+        全平台 22 款代理客户端官方项目与架构速查
+      </h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        {PROXY_CLIENTS.map((c) => (
+          <div class="card-surface p-5 space-y-2.5">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <h3 class="text-lg font-bold text-[#172033]">{c.name}</h3>
+              <span class="badge-category">{c.coreType}</span>
+            </div>
+            <div class="flex flex-wrap gap-1.5 text-xs">
+              {c.platforms.map((plat) => (
+                <span class="badge-neutral">{plat}</span>
+              ))}
+              <span class="px-2 py-0.5 rounded bg-slate-100 text-slate-700 text-xs font-medium">
+                {c.licensePricing}
+              </span>
+            </div>
+            <p class="text-xs text-[#64748B] leading-relaxed">
+              <strong class="text-[#172033]">架构与版本说明：</strong>{c.architectureNotes}
+            </p>
+            {c.maintenanceWarning && (
+              <p class="text-xs p-2.5 rounded-lg bg-amber-50 border border-amber-200 text-amber-900">
+                ⚠️ {c.maintenanceWarning}
+              </p>
+            )}
+            <div class="pt-2 border-t border-[#E5EAF1] flex items-center justify-between text-xs">
+              <span class="text-[#64748B]">协议：{c.supportedProtocols.slice(0, 4).join(' / ')}</span>
+              <a href={c.guideUrl} class="font-semibold text-[#2563EB] hover:underline">
+                对应配置教程 →
+              </a>
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  </div>
+</BaseLayout>

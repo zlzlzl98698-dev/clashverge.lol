@@ -1,0 +1,373 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumb from '../../components/Breadcrumb.astro';
+import BrandCard from '../../components/cards/BrandCard.astro';
+import FAQSection from '../../components/FAQSection.astro';
+import { AIRPORT_BRANDS } from '../../data/brands';
+import { SITE_CONFIG } from '../../data/site';
+
+const breadcrumbs = [
+  { name: '首页', url: '/' },
+  { name: '31家机场品牌评测数据库', url: '/brands/' },
+];
+
+const itemListElements = AIRPORT_BRANDS.map((b) => ({
+  name: `${b.name} (${b.englishName})`,
+  url: `/brands/${b.slug}/`,
+  description: b.summary,
+}));
+
+const dbFaq = [
+  {
+    q: '为什么品牌数据库共展示 31 家独立品牌，而原始清单文件名为“32家”？',
+    a: '经本站品牌数据审计，《32家机场品牌清单.txt》中的第 8 号品牌「Firefly」与文件末尾历史记录中的「Firefly 萤火虫」实为同一品牌（同属 vip02.fireflyaff.com 且套餐优惠码完全一致）。我们已将两份记录合并进统一的 firefly 档案页，确保全库 31 家品牌无重复路由。',
+  },
+  {
+    q: '如何筛选出支持导入 Clash Verge Rev 和小火箭（Shadowrocket）的品牌？',
+    a: '在下方筛选栏的「客户端与订阅支持」中选择「支持第三方通用订阅（含自研+订阅双支持）」，即可过滤掉仅限官方专属客户端的 8 家品牌，精准定位支持 Clash 的 20 家专线品牌。',
+  },
+  {
+    q: '数据库中的“2026-10 已实测”和“基础资料已核”有什么区别？',
+    a: '“2026-10 已实测”代表该品牌拥有 2026-10-19 同批次香港、台湾、新加坡、日本、美国五地节点的真实延迟与下载速率测试记录；“基础资料已核”代表已核实其线路类型、起步价与优惠码，但暂缺统一逐地区跑分，本站严格遵循不编造数据原则如实标注。',
+  },
+];
+---
+
+<BaseLayout
+  title="2026 机场品牌评测数据库：31家IEPL/IPLC机场价格、优惠码与实测检索 | clash订阅"
+  description="收录31家独立去重机场品牌（含光速云、暮光加速、飞猫云、微风网络、星岛梦、唯兔云、一翻云、Firefly等）的完整结构化数据库。支持按线路类型、价格区间、客户端订阅支持、AI与流媒体解锁状态实时筛选排序。"
+  breadcrumbs={breadcrumbs}
+  faq={dbFaq}
+  schemaType="ItemList"
+  itemListElements={itemListElements}
+>
+  <!-- Hero Header -->
+  <section class="bg-[#0B1120] text-white border-b border-slate-800 py-10 sm:py-14">
+    <div class="editorial-container">
+      <div class="text-slate-400 [&_a]:text-slate-300 [&_span]:text-white">
+        <Breadcrumb items={breadcrumbs} />
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+        <div class="lg:col-span-8 space-y-3">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-950/90 border border-blue-700/60 text-xs font-mono text-sky-300">
+            <span>STRUCTURED BRAND DATABASE // 2026-10-19 实测批次</span>
+          </div>
+          <h1 class="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
+            中文机场品牌评测数据库（31 家独立品牌全量索引）
+          </h1>
+          <p class="text-sm sm:text-base text-slate-300 leading-relaxed">
+            所有品牌卡片、价格档位、优惠码与测速状态均由单一可信数据源（<code>src/data/brands.ts</code>）驱动。绝不编造未实测数据，严格区分商业推广与独立测试结论。
+          </p>
+        </div>
+
+        <div class="lg:col-span-4 grid grid-cols-2 gap-3 text-xs font-mono">
+          <div class="p-4 rounded-xl bg-[#111827] border border-slate-800">
+            <span class="text-slate-400 block">独立去重品牌</span>
+            <strong class="text-2xl text-white font-bold mt-1 block">31 家</strong>
+          </div>
+          <div class="p-4 rounded-xl bg-[#111827] border border-slate-800">
+            <span class="text-slate-400 block">含五地实测跑分</span>
+            <strong class="text-2xl text-emerald-400 font-bold mt-1 block">15 家</strong>
+          </div>
+          <div class="p-4 rounded-xl bg-[#111827] border border-slate-800">
+            <span class="text-slate-400 block">支持通用订阅</span>
+            <strong class="text-2xl text-sky-400 font-bold mt-1 block">20 家</strong>
+          </div>
+          <div class="p-4 rounded-xl bg-[#111827] border border-slate-800">
+            <span class="text-slate-400 block">永久不限时包</span>
+            <strong class="text-2xl text-amber-300 font-bold mt-1 block">11 家</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="editorial-container py-10 space-y-10">
+    <!-- Interactive Filter & Sort Console -->
+    <section
+      aria-label="品牌多维筛选与排序控制台"
+      class="card-surface p-5 sm:p-6 bg-[#F7F9FC] space-y-4"
+    >
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5">
+        <!-- Keyword Search -->
+        <div>
+          <label for="filter-q" class="block text-xs font-bold text-[#172033] mb-1">
+            1. 搜索品牌名称 / 优惠码
+          </label>
+          <input
+            id="filter-q"
+            type="search"
+            placeholder="如：光速云、一翻云、AMM..."
+            class="w-full px-3 py-2 rounded-lg border border-[#E5EAF1] bg-white text-sm text-[#172033]"
+          />
+        </div>
+
+        <!-- Line Type Filter -->
+        <div>
+          <label for="filter-line" class="block text-xs font-bold text-[#172033] mb-1">
+            2. 跨境线路类型
+          </label>
+          <select
+            id="filter-line"
+            class="w-full px-3 py-2 rounded-lg border border-[#E5EAF1] bg-white text-sm text-[#172033]"
+          >
+            <option value="all">全部线路类型 (31)</option>
+            <option value="IEPL">IEPL 专线 / 双专线 (22)</option>
+            <option value="IPLC">IPLC 专线 (6)</option>
+            <option value="BGP">BGP 智能专线 (1)</option>
+            <option value="中转">中转优化 (2)</option>
+          </select>
+        </div>
+
+        <!-- Client Mode Filter -->
+        <div>
+          <label for="filter-client" class="block text-xs font-bold text-[#172033] mb-1">
+            3. 客户端与订阅支持
+          </label>
+          <select
+            id="filter-client"
+            class="w-full px-3 py-2 rounded-lg border border-[#E5EAF1] bg-white text-sm text-[#172033]"
+          >
+            <option value="all">全部客户端方式</option>
+            <option value="sub">支持 Clash 第三方订阅 (含双支持)</option>
+            <option value="dual">自研客户端 + 第三方订阅双支持</option>
+            <option value="exclusive">仅限官方专属客户端 (免配置)</option>
+          </select>
+        </div>
+
+        <!-- Data Verification Status -->
+        <div>
+          <label for="filter-verified" class="block text-xs font-bold text-[#172033] mb-1">
+            4. 实测与数据核实状态
+          </label>
+          <select
+            id="filter-verified"
+            class="w-full px-3 py-2 rounded-lg border border-[#E5EAF1] bg-white text-sm text-[#172033]"
+          >
+            <option value="all">全部核实状态</option>
+            <option value="measured">具备 2026 实测速度数据</option>
+            <option value="vendor">基础资料已核 (待补测速度)</option>
+          </select>
+        </div>
+
+        <!-- Sorting -->
+        <div>
+          <label for="filter-sort" class="block text-xs font-bold text-[#172033] mb-1">
+            5. 排序方式
+          </label>
+          <select
+            id="filter-sort"
+            class="w-full px-3 py-2 rounded-lg border border-[#E5EAF1] bg-white text-sm text-[#172033]"
+          >
+            <option value="rank">默认综合推荐排序</option>
+            <option value="price-asc">按折算起步价从低到高</option>
+            <option value="price-desc">按折算起步价从高到低</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="pt-3 border-t border-[#E5EAF1] flex flex-wrap items-center justify-between gap-2 text-xs text-[#64748B]">
+        <div>
+          当前匹配显示：<strong id="filter-count" class="text-[#2563EB] font-mono text-sm">{AIRPORT_BRANDS.length}</strong> 家机场品牌
+        </div>
+        <button
+          id="filter-reset"
+          type="button"
+          class="px-3 py-1 rounded-md bg-white border border-[#E5EAF1] text-[#172033] hover:border-[#2563EB] hover:text-[#2563EB] font-medium"
+        >
+          重置全部筛选条件
+        </button>
+      </div>
+    </section>
+
+    <!-- Brand Cards Grid (Static HTML Rendered for SEO) -->
+    <div id="brand-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {AIRPORT_BRANDS.map((brand) => (
+        <BrandCard brand={brand} />
+      ))}
+    </div>
+
+    <!-- Empty State -->
+    <div
+      id="brand-empty-state"
+      class="hidden card-surface p-12 text-center space-y-3"
+    >
+      <p class="text-lg font-bold text-[#172033]">未找到符合当前筛选组合的品牌</p>
+      <p class="text-sm text-[#64748B]">
+        请尝试放宽线路类型或客户端筛选条件，或点击下方按钮恢复显示全部 31 家品牌。
+      </p>
+      <button
+        id="empty-reset-btn"
+        type="button"
+        class="px-4 py-2 rounded-xl bg-[#2563EB] text-white text-sm font-semibold"
+      >
+        显示全部 31 家品牌
+      </button>
+    </div>
+
+    <!-- Complete Master Comparison Table (Copy-Friendly Full Overview) -->
+    <section aria-labelledby="master-table-heading" class="pt-6">
+      <div class="mb-4">
+        <h2 id="master-table-heading" class="text-2xl font-bold text-[#172033]">
+          31 家机场品牌核心参数与优惠码全量速查总表
+        </h2>
+        <p class="text-sm text-[#64748B] mt-1">
+          {SITE_CONFIG.affiliateDisclosure}
+        </p>
+      </div>
+
+      <div class="card-surface overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse text-xs sm:text-sm">
+            <thead>
+              <tr class="bg-[#F7F9FC] border-b border-[#E5EAF1] text-[#172033]">
+                <th class="py-3 px-3 font-semibold">#</th>
+                <th class="py-3 px-3 font-semibold">品牌名称</th>
+                <th class="py-3 px-3 font-semibold">开业年份</th>
+                <th class="py-3 px-3 font-semibold">线路与协议</th>
+                <th class="py-3 px-3 font-semibold">起步参考价</th>
+                <th class="py-3 px-3 font-semibold">专属优惠码</th>
+                <th class="py-3 px-3 font-semibold">客户端支持</th>
+                <th class="py-3 px-3 font-semibold">核实状态</th>
+                <th class="py-3 px-3 font-semibold text-right">评测 / 官网</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-[#E5EAF1]">
+              {AIRPORT_BRANDS.map((b, i) => (
+                <tr class="hover:bg-[#F7F9FC]/60">
+                  <td class="py-2.5 px-3 font-mono text-[#64748B]">{i + 1}</td>
+                  <td class="py-2.5 px-3 font-bold text-[#172033] whitespace-nowrap">
+                    <a href={`/brands/${b.slug}/`} class="hover:text-[#2563EB]">{b.name}</a>
+                  </td>
+                  <td class="py-2.5 px-3 text-[#64748B] whitespace-nowrap">{b.foundedYear}</td>
+                  <td class="py-2.5 px-3 whitespace-nowrap">
+                    {b.lineType} · <span class="font-mono text-xs">{b.protocols[0]}</span>
+                  </td>
+                  <td class="py-2.5 px-3 font-mono text-[#2563EB] whitespace-nowrap">
+                    {b.startingPriceLabel.split('|')[0]}
+                  </td>
+                  <td class="py-2.5 px-3 font-mono">
+                    <code class="px-1.5 py-0.5 rounded bg-[#EFF6FF] text-[#2563EB]">{b.couponCode}</code>
+                  </td>
+                  <td class="py-2.5 px-3 text-xs whitespace-nowrap">{b.clientSupport}</td>
+                  <td class="py-2.5 px-3 text-xs whitespace-nowrap">
+                    {b.verificationStatus === 'Measured_2026_10' ? '2026-10实测' : '档案核实'}
+                  </td>
+                  <td class="py-2.5 px-3 text-right whitespace-nowrap">
+                    <a href={`/brands/${b.slug}/`} class="text-[#2563EB] font-semibold hover:underline mr-2">
+                      评测
+                    </a>
+                    <a
+                      href={b.registerUrl}
+                      target="_blank"
+                      rel="nofollow sponsored noopener"
+                      class="px-2 py-1 rounded bg-[#2563EB] text-white text-xs font-semibold hover:bg-[#1D4ED8]"
+                    >
+                      官网
+                    </a>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <FAQSection items={dbFaq} />
+  </div>
+</BaseLayout>
+
+<script is:inline>
+  (function () {
+    const qInput = document.getElementById('filter-q');
+    const lineSelect = document.getElementById('filter-line');
+    const clientSelect = document.getElementById('filter-client');
+    const verifiedSelect = document.getElementById('filter-verified');
+    const sortSelect = document.getElementById('filter-sort');
+    const resetBtn = document.getElementById('filter-reset');
+    const emptyResetBtn = document.getElementById('empty-reset-btn');
+    const countEl = document.getElementById('filter-count');
+    const grid = document.getElementById('brand-grid');
+    const emptyState = document.getElementById('brand-empty-state');
+
+    if (!grid) return;
+    const cards = Array.from(grid.querySelectorAll('[data-brand-card]'));
+
+    // Read URL query params on load
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('q') && qInput) qInput.value = params.get('q');
+    if (params.get('line') && lineSelect) lineSelect.value = params.get('line');
+    if (params.get('client') && clientSelect) clientSelect.value = params.get('client');
+    if (params.get('verified') && verifiedSelect) verifiedSelect.value = params.get('verified');
+
+    function applyFilters() {
+      const q = (qInput?.value || '').trim().toLowerCase();
+      const line = lineSelect?.value || 'all';
+      const client = clientSelect?.value || 'all';
+      const verified = verifiedSelect?.value || 'all';
+      const sort = sortSelect?.value || 'rank';
+
+      let visibleCount = 0;
+
+      cards.forEach((card) => {
+        const name = card.getAttribute('data-name') || '';
+        const text = (card.textContent || '').toLowerCase();
+        const cardLine = card.getAttribute('data-line') || '';
+        const cardClient = card.getAttribute('data-client') || '';
+        const cardVerified = card.getAttribute('data-verified') || '';
+
+        let match = true;
+        if (q && !name.includes(q) && !text.includes(q)) match = false;
+        if (line !== 'all' && !cardLine.includes(line)) match = false;
+        if (client === 'sub' && !cardClient.includes('订阅')) match = false;
+        if (client === 'dual' && cardClient !== '自研客户端+第三方订阅') match = false;
+        if (client === 'exclusive' && !cardClient.includes('专属客户端')) match = false;
+        if (verified === 'measured' && !cardVerified.startsWith('Measured')) match = false;
+        if (verified === 'vendor' && cardVerified.startsWith('Measured')) match = false;
+
+        card.classList.toggle('hidden', !match);
+        if (match) visibleCount++;
+      });
+
+      // Sort cards in DOM
+      const sorted = [...cards].sort((a, b) => {
+        const priceA = parseFloat(a.getAttribute('data-price') || '99');
+        const priceB = parseFloat(b.getAttribute('data-price') || '99');
+        if (sort === 'price-asc') return priceA - priceB;
+        if (sort === 'price-desc') return priceB - priceA;
+        return 0;
+      });
+      if (sort !== 'rank') {
+        sorted.forEach((c) => grid.appendChild(c));
+      }
+
+      if (countEl) countEl.textContent = String(visibleCount);
+      if (emptyState) {
+        emptyState.classList.toggle('hidden', visibleCount > 0);
+      }
+    }
+
+    [qInput, lineSelect, clientSelect, verifiedSelect, sortSelect].forEach((el) => {
+      if (el) {
+        el.addEventListener('input', applyFilters);
+        el.addEventListener('change', applyFilters);
+      }
+    });
+
+    function resetAll() {
+      if (qInput) qInput.value = '';
+      if (lineSelect) lineSelect.value = 'all';
+      if (clientSelect) clientSelect.value = 'all';
+      if (verifiedSelect) verifiedSelect.value = 'all';
+      if (sortSelect) sortSelect.value = 'rank';
+      applyFilters();
+    }
+
+    resetBtn?.addEventListener('click', resetAll);
+    emptyResetBtn?.addEventListener('click', resetAll);
+
+    applyFilters();
+  })();
+</script>

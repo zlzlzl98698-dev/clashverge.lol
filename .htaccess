@@ -1,0 +1,68 @@
+# =====================================================================
+# Apache Static Deployment Configuration for clash订阅 (clashverge.lol / clash-cloud.run)
+# =====================================================================
+
+# 1. Disable Directory Browsing & Set Default Index
+Options -Indexes +FollowSymLinks
+DirectoryIndex index.html
+
+# 2. Proper 404 Error Document (NO global SPA fallback to index.html)
+ErrorDocument 404 /404/index.html
+
+# 3. URL Rewrite Rules (HTTPS & Trailing Slash Normalization)
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+
+  # Respect Reverse Proxy / Cloudflare X-Forwarded-Proto to prevent redirect loops
+  RewriteCond %{HTTPS} !=on
+  RewriteCond %{HTTP:X-Forwarded-Proto} !https [NC]
+  RewriteCond %{HTTP_HOST} !^localhost [NC]
+  RewriteCond %{HTTP_HOST} !^127\.0\.0\.1
+  RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+  # Enforce trailing slash on directory routes (excluding actual files with extensions)
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_URI} !\.[a-zA-Z0-9]{1,5}$
+  RewriteCond %{REQUEST_URI} !/$
+  RewriteRule ^(.*)$ /$1/ [L,R=301]
+</IfModule>
+
+# 4. UTF-8 Charset & MIME Types for Pagefind & Modern Assets
+AddDefaultCharset UTF-8
+<IfModule mod_mime.c>
+  AddType application/wasm .wasm
+  AddType application/json .json
+  AddType image/svg+xml .svg
+  AddType image/webp .webp
+  AddType text/javascript .js .mjs
+</IfModule>
+
+# 5. Gzip / Brotli Compression
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/plain text/css text/xml application/javascript application/json image/svg+xml
+</IfModule>
+
+# 6. Static Asset Caching Strategy
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresDefault "access plus 1 hour"
+  ExpiresByType text/html "access plus 0 seconds"
+  ExpiresByType text/xml "access plus 1 hour"
+  ExpiresByType application/xml "access plus 1 hour"
+  ExpiresByType text/css "access plus 1 year"
+  ExpiresByType application/javascript "access plus 1 year"
+  ExpiresByType image/webp "access plus 1 year"
+  ExpiresByType image/png "access plus 1 year"
+  ExpiresByType image/jpeg "access plus 1 year"
+  ExpiresByType image/svg+xml "access plus 1 year"
+  ExpiresByType application/wasm "access plus 1 month"
+</IfModule>
+
+# 7. Safe Security Response Headers
+<IfModule mod_headers.c>
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set X-Frame-Options "SAMEORIGIN"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  Header always set Permissions-Policy "geolocation=(), microphone=(), camera=()"
+</IfModule>

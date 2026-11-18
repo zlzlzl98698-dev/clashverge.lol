@@ -1,0 +1,42 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumb from '../../components/Breadcrumb.astro';
+import ComparisonCard from '../../components/cards/ComparisonCard.astro';
+import { getAllPublishedPosts } from '../../utils/content';
+
+const allPosts = await getAllPublishedPosts();
+const compPosts = allPosts.filter(
+  (p) => p.collection === 'comparisons' || p.slug.includes('comparison') || p.slug.includes('matrix') || p.slug.includes('analysis')
+);
+
+const breadcrumbs = [
+  { name: '首页', url: '/' },
+  { name: '多品牌横向对比评测', url: '/comparisons/' },
+];
+---
+
+<BaseLayout
+  title="2026 机场横向对比中心：光速云 vs 暮光 vs 飞猫云及六大专线PK | clash订阅"
+  description="提供同价位段、同线路类型的机场与加速器品牌横向对比评测，覆盖8元档、18元档、20元档、25元档及永久不限时流量包。"
+  breadcrumbs={breadcrumbs}
+>
+  <section class="bg-[#F7F9FC] border-b border-[#E5EAF1] py-10">
+    <div class="editorial-container">
+      <Breadcrumb items={breadcrumbs} />
+      <h1 class="text-3xl sm:text-4xl font-extrabold text-[#172033]">
+        多品牌横向对比与同价位对决
+      </h1>
+      <p class="mt-2 text-base text-[#64748B]">
+        拒绝孤立看参数，把同档位品牌放在同一张测试桌面上比价格、比延迟、比客户端支持。
+      </p>
+    </div>
+  </section>
+
+  <div class="editorial-container py-10">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {compPosts.map((post) => (
+        <ComparisonCard post={post} />
+      ))}
+    </div>
+  </div>
+</BaseLayout>

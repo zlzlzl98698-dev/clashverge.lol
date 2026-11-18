@@ -1,0 +1,37 @@
+---
+import type { UnifiedPost } from '../../utils/content';
+
+export interface Props {
+  post: UnifiedPost;
+  platformBadge?: string;
+}
+
+const { post, platformBadge } = Astro.props;
+const platform = platformBadge || post.rawEntry?.data?.platform || '全平台教程';
+---
+
+<article class="card-surface p-5 flex flex-col justify-between group">
+  <div>
+    <div class="flex items-center justify-between gap-2 mb-3">
+      <span class="px-2.5 py-0.5 rounded-md text-xs font-semibold bg-slate-900 text-white font-mono">
+        {platform}
+      </span>
+      <span class="text-xs text-[#64748B]">实操指南 · {post.readingTime}</span>
+    </div>
+
+    <h3 class="text-base sm:text-lg font-bold text-[#172033] group-hover:text-[#2563EB] transition-colors line-clamp-2 leading-snug">
+      <a href={post.url}>{post.title}</a>
+    </h3>
+
+    <p class="mt-2 text-sm text-[#64748B] line-clamp-2 leading-relaxed">
+      {post.excerpt}
+    </p>
+  </div>
+
+  <div class="mt-4 pt-3 border-t border-[#E5EAF1] flex items-center justify-between text-xs">
+    <span class="text-[#64748B]">核实日期：{post.updatedDate}</span>
+    <a href={post.url} class="font-semibold text-[#2563EB] hover:underline">
+      查看步骤教程 →
+    </a>
+  </div>
+</article>

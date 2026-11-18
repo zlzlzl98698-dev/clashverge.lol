@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" fill="none">
+  <rect width="800" height="450" fill="#EFF6FF"/>
+  <rect x="50" y="50" width="700" height="350" rx="20" fill="#FFFFFF" stroke="#DBEAFE" stroke-width="2"/>
+  <rect x="90" y="95" width="140" height="32" rx="16" fill="#2563EB"/>
+  <text x="116" y="116" fill="#FFFFFF" font-family="sans-serif" font-weight="bold" font-size="14">2026 机场评测</text>
+  <rect x="90" y="155" width="380" height="24" rx="6" fill="#172033"/>
+  <rect x="90" y="195" width="290" height="16" rx="4" fill="#64748B"/>
+  <rect x="90" y="250" width="180" height="95" rx="12" fill="#F8FAFC" stroke="#E2E8F0"/>
+  <text x="110" y="285" fill="#64748B" font-family="sans-serif" font-size="13">IEPL 专线节点</text>
+  <text x="110" y="320" fill="#2563EB" font-family="monospace" font-weight="bold" font-size="24">31 Brands</text>
+  <rect x="295" y="250" width="180" height="95" rx="12" fill="#F8FAFC" stroke="#E2E8F0"/>
+  <text x="315" y="285" fill="#64748B" font-family="sans-serif" font-size="13">流媒体 &amp; AI 解锁</text>
+  <text x="315" y="320" fill="#10B981" font-family="monospace" font-weight="bold" font-size="24">4K / GPT</text>
+  <circle cx="610" cy="225" r="85" fill="#EFF6FF" stroke="#BFDBFE" stroke-width="3"/>
+  <path d="M575 230L600 255L650 195" stroke="#2563EB" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

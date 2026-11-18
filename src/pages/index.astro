@@ -1,0 +1,767 @@
+---
+import HomeLayout from '../layouts/HomeLayout.astro';
+import SearchBox from '../components/SearchBox.astro';
+import CategoryCard from '../components/cards/CategoryCard.astro';
+import FeaturedArticleCard from '../components/cards/FeaturedArticleCard.astro';
+import ArticleCard from '../components/cards/ArticleCard.astro';
+import CompactArticleCard from '../components/cards/CompactArticleCard.astro';
+import BrandCard from '../components/cards/BrandCard.astro';
+import ReviewCard from '../components/cards/ReviewCard.astro';
+import ComparisonCard from '../components/cards/ComparisonCard.astro';
+import PricingCard from '../components/cards/PricingCard.astro';
+import GuideCard from '../components/cards/GuideCard.astro';
+import FAQSection from '../components/FAQSection.astro';
+import { SITE_CONFIG } from '../data/site';
+import { PRIMARY_NAVIGATION } from '../data/navigation';
+import { AIRPORT_BRANDS, MEASURED_BRANDS } from '../data/brands';
+import { PROXY_CLIENTS, CLIENT_PLATFORMS } from '../data/clients';
+import { getAllPublishedPosts } from '../utils/content';
+
+const allPosts = await getAllPublishedPosts();
+
+// 4. Editorial Featured Posts (Magazine Layout: 1 Large + 2 Medium + 4 Compact)
+const heroFeaturedPost =
+  allPosts.find((p) => p.slug === 'guangsuyun-in-depth-review-2026') ||
+  allPosts.find((p) => p.featured) ||
+  allPosts[0];
+const mediumFeaturedPosts = allPosts
+  .filter((p) => p.slug !== heroFeaturedPost?.slug && (p.pillar || p.featured))
+  .slice(0, 2);
+const compactFeaturedPosts = allPosts
+  .filter(
+    (p) =>
+      p.slug !== heroFeaturedPost?.slug &&
+      !mediumFeaturedPosts.some((m) => m.slug === p.slug)
+  )
+  .slice(0, 4);
+
+// 5. Airport Recommendation Brands & Posts
+const recommendedBrands = AIRPORT_BRANDS.slice(0, 6);
+const airportPosts = allPosts.filter((p) => p.category === 'airport').slice(0, 3);
+
+// 6. Airport Ranking (Sorted by measured HK download speed, separating commercial promo badge)
+const speedRankedBrands = [...MEASURED_BRANDS]
+  .filter((b) => b.speedRecords.some((r) => r.region === '香港' && r.downloadMbps))
+  .sort((a, b) => {
+    const aHk = a.speedRecords.find((r) => r.region === '香港')?.downloadMbps || 0;
+    const bHk = b.speedRecords.find((r) => r.region === '香港')?.downloadMbps || 0;
+    return bHk - aHk;
+  })
+  .slice(0, 8);
+
+// 7. Best Value Airports (Pricing Cards + Value Posts)
+const valueBrands = [
+  AIRPORT_BRANDS.find((b) => b.slug === 'guangsuyun')!,
+  AIRPORT_BRANDS.find((b) => b.slug === 'yifan')!,
+  AIRPORT_BRANDS.find((b) => b.slug === 'weitu')!,
+  AIRPORT_BRANDS.find((b) => b.slug === 'xingdaomeng')!,
+];
+
+// 9. Deep Brand Reviews
+const reviewPosts = allPosts.filter(
+  (p) => p.collection === 'reviews' || p.slug.includes('review') || p.slug.includes('ranking')
+).slice(0, 3);
+
+// 10. Horizontal Comparisons
+const comparisonPosts = allPosts.filter(
+  (p) => p.collection === 'comparisons' || p.slug.includes('comparison') || p.slug.includes('matrix')
+).slice(0, 3);
+
+// 11. VPN & Accelerator Posts
+const vpnPosts = allPosts.filter((p) => p.category === 'vpn').slice(0, 4);
+
+// 12. Clash Client Tutorials
+const clashGuidePosts = allPosts.filter((p) => p.category === 'clash').slice(0, 4);
+
+// 13. Network Troubleshooting Posts
+const troubleshootingPosts = allPosts.filter(
+  (p) => p.searchIntent === 'Troubleshooting' || p.slug.includes('troubleshooting') || p.slug.includes('detection')
+).slice(0, 3);
+
+// 14. Risk & Intelligence Posts
+const intelligencePosts = allPosts.filter((p) => p.category === 'resources').slice(0, 4);
+
+// 15. Latest 9 Articles
+const latestNinePosts = allPosts.slice(0, 9);
+
+// 16. Homepage FAQ
+const homeFaq = [
+  {
+    q: '2026年第一次选择机场或VPN，应该优先看哪些指标？',
+    a: '优先看三项硬指标：① 过境线路是否为 IEPL/IPLC 物理专线（决定晚高峰20:00-23:00是否掉速）；② 客户端交付方式是支持第三方通用订阅（可导入 Clash Verge Rev、Shadowrocket 与软路由）还是仅限官方专属客户端；③ 价格是否为1倍流量（×1）以及是年付折算价还是标准月付价。',
+  },
+  {
+    q: '本站首选推荐的「光速云」与排行榜上的其他品牌是什么关系？',
+    a: '光速云（2020年运营，IEPL+企业内网双专线，优惠码 AMM）是本站优先展示的商业推广合作品牌。我们严格遵守广告与独立评测分离原则：在全站显式标注推广属性与佣金声明，同时客观披露其香港 529Mbps（22ms）实测数据及 ChatGPT/Gemini 需视节点切换的真实限制。',
+  },
+  {
+    q: '原版 Clash for Windows 停更后，现在电脑和手机用什么客户端最好？',
+    a: 'Windows、macOS 和 Linux 桌面端强烈推荐使用基于 Mihomo（原 Clash.Meta）内核的 Clash Verge Rev 或 FlClash，完美支持 VLESS 与 Hysteria 2 协议；Android 手机推荐 FlClash、v2rayNG 或 Hiddify；iPhone/iPad 推荐用非国区 Apple ID 下载 Shadowrocket（小火箭）、Stash 或免费的 Hiddify / Karing。',
+  },
+  {
+    q: '为什么你们强烈建议新手“先买月付或百元内小包实测，不要直接买三年付”？',
+    a: '因为不同地区宽带运营商（电信/联通/移动）对不同国内 BGP 入口的路由表现存在个体差异，且机场套餐属于特殊虚拟商品普遍不支持退款。花 18–25 元买一个月实测本地晚高峰体验，或者搭配一份 ¥99–¥147 的永久不限时流量包作为备用，是最稳妥的资金风控方式。',
+  },
+];
+---
+
+<HomeLayout
+  title={SITE_CONFIG.siteTitle}
+  description={SITE_CONFIG.description}
+  faq={homeFaq}
+>
+  <!-- 2. Hero Visual Section -->
+  <section class="relative overflow-hidden bg-gradient-to-b from-[#EFF6FF]/70 via-[#F7F9FC] to-white border-b border-[#E5EAF1] py-12 sm:py-16 lg:py-20">
+    <div class="editorial-container">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+        <!-- Left Brand Intro & Search -->
+        <div class="lg:col-span-7 space-y-6">
+          <div class="inline-flex flex-wrap items-center gap-2 px-3.5 py-1.5 rounded-full bg-white border border-blue-200 shadow-sm text-xs font-semibold text-[#2563EB]">
+            <span class="w-2 h-2 rounded-full bg-[#2563EB] animate-pulse"></span>
+            <span>2026-11 实测数据库已更新 · 收录 31 家独立机场品牌 & 22 款代理客户端</span>
+          </div>
+
+          <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#172033] tracking-tight leading-[1.18]">
+            以实测数据与架构拆解为核心的
+            <span class="text-[#2563EB]">中文机场评测与 Clash 知识媒体</span>
+          </h1>
+
+          <p class="text-base sm:text-lg text-[#64748B] leading-relaxed max-w-2xl">
+            拒绝无依据的主观吹捧与模板化换词。<strong>{SITE_CONFIG.brandName} ({SITE_CONFIG.domain})</strong> 持续追踪 IEPL/IPLC 跨境专线延迟吞吐、AI（ChatGPT/Claude/Gemini）与 4K 流媒体解锁表现，以及 <strong>Clash Verge Rev / Mihomo / Sing-box</strong> 全平台分流排障教程。
+          </p>
+
+          <!-- Search Entry -->
+          <div class="max-w-xl">
+            <SearchBox />
+            <div class="mt-2.5 flex flex-wrap items-center gap-2 text-xs text-[#64748B]">
+              <span>热门搜索：</span>
+              <a href="/brands/guangsuyun/" class="hover:text-[#2563EB] underline">光速云评测</a>
+              <span>·</span>
+              <a href="/airport/recommend/" class="hover:text-[#2563EB] underline">2026机场推荐</a>
+              <span>·</span>
+              <a href="/clash/download/" class="hover:text-[#2563EB] underline">Clash Verge下载</a>
+              <span>·</span>
+              <a href="/airport/value/" class="hover:text-[#2563EB] underline">永久不限时流量包</a>
+              <span>·</span>
+              <a href="/clash/troubleshooting/" class="hover:text-[#2563EB] underline">节点Timeout修复</a>
+            </div>
+          </div>
+
+          <!-- Primary CTA Buttons -->
+          <div class="pt-2 flex flex-wrap items-center gap-3.5">
+            <a
+              href="/airport/recommend/"
+              class="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-semibold text-sm shadow-sm transition-colors"
+            >
+              <span>查看 2026 机场推荐总榜</span>
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+              </svg>
+            </a>
+            <a
+              href="/brands/"
+              class="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-white hover:bg-[#F7F9FC] text-[#172033] border border-[#E5EAF1] hover:border-[#2563EB] font-semibold text-sm transition-colors"
+            >
+              <span>检索 31 家品牌数据库</span>
+            </a>
+            <a
+              href="/resources/beginner-help/"
+              class="inline-flex items-center gap-1.5 px-4 py-3 rounded-xl text-[#2563EB] hover:bg-[#EFF6FF] font-semibold text-sm transition-colors"
+            >
+              <span>新手 10 分钟上手指南 →</span>
+            </a>
+          </div>
+        </div>
+
+        <!-- Right Observatory Lab Snapshot Card -->
+        <div class="lg:col-span-5">
+          <div class="observatory-panel p-6 space-y-5">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3.5">
+              <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
+                <span class="text-xs font-mono font-bold text-slate-200">
+                  OBSERVATORY // LIVE BENCHMARK SNAPSHOT
+                </span>
+              </div>
+              <span class="text-[11px] font-mono px-2 py-0.5 rounded bg-slate-800 text-sky-300">
+                BATCH: {SITE_CONFIG.testBatchDate}
+              </span>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+              <div class="p-3.5 rounded-xl bg-[#111827] border border-slate-800">
+                <span class="text-[11px] font-mono text-slate-400 block">AUDITED BRANDS</span>
+                <strong class="text-2xl font-mono font-extrabold text-white mt-0.5 block">
+                  31 <span class="text-xs font-normal text-emerald-400">家去重独立库</span>
+                </strong>
+              </div>
+              <div class="p-3.5 rounded-xl bg-[#111827] border border-slate-800">
+                <span class="text-[11px] font-mono text-slate-400 block">HK IEPL PEAK</span>
+                <strong class="text-2xl font-mono font-extrabold text-emerald-400 mt-0.5 block">
+                  548 <span class="text-xs font-normal text-slate-300">Mbps / 21ms</span>
+                </strong>
+              </div>
+            </div>
+
+            <!-- Top Promoted & Measured Quick List -->
+            <div class="space-y-2.5">
+              <div class="text-xs font-mono text-slate-400 flex items-center justify-between">
+                <span>重点追踪专线样本 (HK RTT / Down)</span>
+                <span>客户端兼容</span>
+              </div>
+
+              <a
+                href="/brands/guangsuyun/"
+                class="p-3 rounded-xl bg-blue-950/50 border border-blue-500/50 flex items-center justify-between hover:border-blue-400 transition-colors block"
+              >
+                <div>
+                  <span class="text-xs font-bold text-white flex items-center gap-1.5">
+                    <span>★ 光速云 (2020老牌双专线)</span>
+                    <span class="text-[10px] px-1.5 py-0.2 rounded bg-blue-600 text-white">主推合作</span>
+                  </span>
+                  <span class="text-[11px] font-mono text-sky-300 block mt-0.5">
+                    HK: 22ms / 529Mbps | SG: 387Mbps
+                  </span>
+                </div>
+                <span class="text-[11px] font-mono text-slate-200 bg-slate-800/90 px-2 py-1 rounded">
+                  自研端+Clash订阅
+                </span>
+              </a>
+
+              <a
+                href="/brands/weifeng/"
+                class="p-2.5 rounded-xl bg-[#111827] border border-slate-800 flex items-center justify-between hover:border-slate-600 transition-colors block"
+              >
+                <div>
+                  <span class="text-xs font-bold text-slate-100">微风网络 (IEPL + VLESS)</span>
+                  <span class="text-[11px] font-mono text-emerald-400 block">
+                    HK: 25ms / 546Mbps | SG: 384Mbps
+                  </span>
+                </div>
+                <span class="text-[11px] font-mono text-slate-300">自研+订阅</span>
+              </a>
+
+              <a
+                href="/brands/yifan/"
+                class="p-2.5 rounded-xl bg-[#111827] border border-slate-800 flex items-center justify-between hover:border-slate-600 transition-colors block"
+              >
+                <div>
+                  <span class="text-xs font-bold text-slate-100">一翻云 (IEPL + 住宅IP)</span>
+                  <span class="text-[11px] font-mono text-emerald-400 block">
+                    HK: 23ms / 477Mbps | Hy2/Reality/SS
+                  </span>
+                </div>
+                <span class="text-[11px] font-mono text-slate-300">通用订阅</span>
+              </a>
+            </div>
+
+            <div class="pt-2 border-t border-slate-800 flex items-center justify-between text-[11px] font-mono text-slate-400">
+              <span>COVERING 4 PILLARS · 28 TOPICS · 56 CLUSTERS</span>
+              <a href="/brands/" class="text-sky-400 hover:underline">完整数据表 →</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main Content Container -->
+  <div class="editorial-container py-12 space-y-20">
+    <!-- 3. Four Primary Category Quick Portals -->
+    <section aria-labelledby="sec-categories">
+      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-2 mb-6">
+        <div>
+          <span class="text-xs font-mono font-bold uppercase tracking-wider text-[#2563EB]">
+            PILLAR NAVIGATION // 四大核心专栏
+          </span>
+          <h2 id="sec-categories" class="text-2xl sm:text-3xl font-extrabold text-[#172033] mt-1">
+            全站四大专题与 28 个二级内容矩阵入口
+          </h2>
+        </div>
+        <p class="text-sm text-[#64748B]">
+          覆盖从新手概念科普、客户端配置到 31 家品牌实测的完整检索闭环
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+        {PRIMARY_NAVIGATION.map((sec) => (
+          <CategoryCard section={sec} />
+        ))}
+      </div>
+    </section>
+
+    <!-- 4. Editorial Featured Section (Magazine Card Layout: 1 Large + 2 Medium + 4 Small) -->
+    <section aria-labelledby="sec-featured">
+      <div class="flex items-center justify-between mb-6">
+        <div>
+          <span class="text-xs font-mono font-bold uppercase tracking-wider text-[#2563EB]">
+            EDITOR'S PICKS // 编辑部精选
+          </span>
+          <h2 id="sec-featured" class="text-2xl sm:text-3xl font-extrabold text-[#172033] mt-1">
+            深度支柱长文与实测专题推荐
+          </h2>
+        </div>
+        <a href="/articles/" class="text-sm font-semibold text-[#2563EB] hover:underline">
+          查看全部原创长文 →
+        </a>
+      </div>
+
+      <div class="space-y-6">
+        {heroFeaturedPost && <FeaturedArticleCard post={heroFeaturedPost} />}
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <div class="lg:col-span-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+            {mediumFeaturedPosts.map((post) => (
+              <ArticleCard post={post} />
+            ))}
+          </div>
+          <div class="lg:col-span-4 flex flex-col justify-between space-y-3">
+            <div class="px-1 text-xs font-bold text-[#64748B] uppercase tracking-wider">
+              快速导读精选
+            </div>
+            {compactFeaturedPosts.map((post, idx) => (
+              <CompactArticleCard post={post} index={idx} />
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. Airport Recommendation Section (Mixed Brand Cards + Article Cards) -->
+    <section aria-labelledby="sec-airport-rec" class="p-6 sm:p-8 rounded-3xl bg-[#F7F9FC] border border-[#E5EAF1]">
+      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-6">
+        <div>
+          <span class="badge-category mb-2">专题一 · 机场推荐</span>
+          <h2 id="sec-airport-rec" class="text-2xl sm:text-3xl font-extrabold text-[#172033]">
+            2026 主力机场推荐：按线路、预算与客户端自由度严选
+          </h2>
+          <p class="text-sm text-[#64748B] mt-1">
+            商业合作推荐（光速云）与多场景独立评测并列展示，所有注册链接统一透明披露
+          </p>
+        </div>
+        <a href="/airport/recommend/" class="text-sm font-semibold text-[#2563EB] hover:underline shrink-0">
+          进入「机场推荐」专题 →
+        </a>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        {recommendedBrands.map((brand) => (
+          <BrandCard brand={brand} />
+        ))}
+      </div>
+
+      <div class="mt-8 pt-6 border-t border-[#E5EAF1]">
+        <h3 class="text-base font-bold text-[#172033] mb-4">配套选型指南与场景分析文章</h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+          {airportPosts.map((post) => (
+            <ArticleCard post={post} />
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. Airport Ranking Section (Clear Leaderboard with Methodology & Promo Distinction) -->
+    <section aria-labelledby="sec-ranking">
+      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-6">
+        <div>
+          <span class="text-xs font-mono font-bold uppercase tracking-wider text-[#2563EB]">
+            SPEEDTEST LEADERBOARD // 实测榜单
+          </span>
+          <h2 id="sec-ranking" class="text-2xl sm:text-3xl font-extrabold text-[#172033] mt-1">
+            2026 机场实测速度排行与综合梯度榜
+          </h2>
+          <p class="text-sm text-[#64748B] mt-1">
+            排名依据：基于 2026-10-19 同批次非晚高峰香港/新加坡/日本节点实测吞吐量客观排序；商业推广标识单独注明，不混充单项跑分排名。
+          </p>
+        </div>
+        <a href="/airport/ranking/" class="text-sm font-semibold text-[#2563EB] hover:underline shrink-0">
+          查看完整 31 家分级榜单 →
+        </a>
+      </div>
+
+      <div class="card-surface overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse text-sm">
+            <thead>
+              <tr class="bg-[#0B1120] text-white">
+                <th class="py-3.5 px-4 font-mono text-xs">实测序号</th>
+                <th class="py-3.5 px-4 font-semibold">品牌名称与性质标识</th>
+                <th class="py-3.5 px-4 font-semibold">线路与协议</th>
+                <th class="py-3.5 px-4 font-semibold">香港实测 (延迟/下载)</th>
+                <th class="py-3.5 px-4 font-semibold">新加坡实测</th>
+                <th class="py-3.5 px-4 font-semibold">客户端模式</th>
+                <th class="py-3.5 px-4 font-semibold">起步参考价</th>
+                <th class="py-3.5 px-4 font-semibold text-right">评测 / 官网</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-[#E5EAF1]">
+              {speedRankedBrands.map((b, idx) => {
+                const hk = b.speedRecords.find((r) => r.region === '香港');
+                const sg = b.speedRecords.find((r) => r.region === '新加坡');
+                return (
+                  <tr class:list={['hover:bg-[#F7F9FC]/80 transition-colors', b.isPromoted ? 'bg-[#EFF6FF]/35' : '']}>
+                    <td class="py-3.5 px-4 font-mono font-bold text-[#2563EB]">
+                      #{String(idx + 1).padStart(2, '0')}
+                    </td>
+                    <td class="py-3.5 px-4">
+                      <div class="flex items-center gap-2">
+                        <a href={`/brands/${b.slug}/`} class="font-bold text-[#172033] hover:text-[#2563EB]">
+                          {b.name}
+                        </a>
+                        {b.isPromoted && (
+                          <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-[#2563EB] text-white">
+                            首选推广合作 · 2020老牌
+                          </span>
+                        )}
+                      </div>
+                    </td>
+                    <td class="py-3.5 px-4 text-xs text-[#64748B]">
+                      {b.lineType} · <span class="font-mono text-[#172033]">{b.protocols[0]}</span>
+                    </td>
+                    <td class="py-3.5 px-4 font-mono">
+                      <strong class="text-emerald-600">{hk?.downloadText}</strong>
+                      <span class="text-xs text-[#64748B] ml-1">({hk?.latency})</span>
+                    </td>
+                    <td class="py-3.5 px-4 font-mono text-xs text-[#172033]">
+                      {sg?.downloadText} ({sg?.latency})
+                    </td>
+                    <td class="py-3.5 px-4 text-xs">
+                      <span
+                        class:list={[
+                          'px-2 py-0.5 rounded font-medium',
+                          b.clientSupport.includes('订阅')
+                            ? 'bg-emerald-50 text-emerald-700'
+                            : 'bg-slate-100 text-slate-700',
+                        ]}
+                      >
+                        {b.clientSupport}
+                      </span>
+                    </td>
+                    <td class="py-3.5 px-4 font-mono text-xs text-[#172033]">
+                      {b.startingPriceLabel.split('|')[0]}
+                    </td>
+                    <td class="py-3.5 px-4 text-right whitespace-nowrap">
+                      <a
+                        href={`/brands/${b.slug}/`}
+                        class="px-2.5 py-1 rounded border border-[#E5EAF1] bg-white text-xs font-semibold text-[#172033] hover:border-[#2563EB] mr-1.5"
+                      >
+                        详情
+                      </a>
+                      <a
+                        href={`/go/${b.slug}/`}
+                        target="_blank"
+                        rel="nofollow sponsored noopener"
+                        class="px-2.5 py-1 rounded bg-[#2563EB] text-white text-xs font-semibold hover:bg-[#1D4ED8]"
+                      >
+                        官网
+                      </a>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+        <div class="px-5 py-3 bg-[#F7F9FC] border-t border-[#E5EAF1] flex flex-wrap items-center justify-between gap-2 text-xs text-[#64748B]">
+          <span>注：表中速度为 2026-10-19 非晚高峰实测数据，1Mbps ≈ 0.125MB/s。</span>
+          <span>{SITE_CONFIG.shortDisclosure}</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7. Best Value Airports (Pricing Cards + Value Analysis) -->
+    <section aria-labelledby="sec-value">
+      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-6">
+        <div>
+          <span class="text-xs font-mono font-bold uppercase tracking-wider text-[#2563EB]">
+            COST-PERFORMANCE // 性价比精算
+          </span>
+          <h2 id="sec-value" class="text-2xl sm:text-3xl font-extrabold text-[#172033] mt-1">
+            高性价比机场与永久不限时套餐对比
+          </h2>
+          <p class="text-sm text-[#64748B] mt-1">
+            严格区分“年付折算月均成本”、“20元主力月付档”与“一次性永久不过期流量包”
+          </p>
+        </div>
+        <a href="/airport/value/" class="text-sm font-semibold text-[#2563EB] hover:underline">
+          查看完整每GB单价精算表 →
+        </a>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+        {valueBrands.map((b) => (
+          <PricingCard brand={b} highlightPlanIndex={1} />
+        ))}
+      </div>
+    </section>
+
+    <!-- 8. Brand Database Portal Section -->
+    <section aria-labelledby="sec-brand-db" class="observatory-panel p-6 sm:p-10">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+        <div class="lg:col-span-7 space-y-4">
+          <span class="px-3 py-1 rounded-full text-xs font-mono font-semibold bg-blue-950 text-sky-300 border border-blue-700/60">
+            BRAND DATABASE // 31 家去重核实档案库
+          </span>
+          <h2 id="sec-brand-db" class="text-2xl sm:text-3xl font-extrabold text-white">
+            检索 31 家机场品牌数据库：支持按线路、价格、客户端与解锁能力多维筛选
+          </h2>
+          <p class="text-sm sm:text-base text-slate-300 leading-relaxed">
+            无论是想筛选「支持 Clash 通用订阅的 VLESS 专线」、「提供 ¥100 永久不限时流量包的品牌」，还是核查「5.6元同规格品牌群组」与「历史价格核实状态」，均可在品牌库一键过滤。
+          </p>
+          <div class="flex flex-wrap gap-2 pt-2">
+            <a href="/brands/?line=IEPL" class="px-3 py-1.5 rounded-lg bg-[#111827] border border-slate-700 text-xs font-mono text-slate-200 hover:border-sky-400">
+              筛选: IEPL 专线 (21家)
+            </a>
+            <a href="/brands/?line=IPLC" class="px-3 py-1.5 rounded-lg bg-[#111827] border border-slate-700 text-xs font-mono text-slate-200 hover:border-sky-400">
+              筛选: IPLC 专线 (6家)
+            </a>
+            <a href="/brands/?client=sub" class="px-3 py-1.5 rounded-lg bg-[#111827] border border-slate-700 text-xs font-mono text-emerald-300 hover:border-emerald-400">
+              筛选: 支持 Clash 第三方订阅 (20家)
+            </a>
+            <a href="/brands/?verified=measured" class="px-3 py-1.5 rounded-lg bg-[#111827] border border-slate-700 text-xs font-mono text-amber-300 hover:border-amber-400">
+              筛选: 含 2026-10 实测跑分 (15家)
+            </a>
+          </div>
+        </div>
+
+        <div class="lg:col-span-5 bg-[#111827] p-6 rounded-2xl border border-slate-800 space-y-4">
+          <h3 class="text-sm font-bold text-slate-100">快速查找品牌评测档案</h3>
+          <form action="/brands/" method="get" class="flex gap-2">
+            <input
+              type="search"
+              name="q"
+              placeholder="输入品牌名：如 光速云、一翻云、唯兔云..."
+              aria-label="搜索机场品牌"
+              class="flex-1 px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-sm text-white placeholder-slate-400 focus:border-blue-500"
+            />
+            <button
+              type="submit"
+              class="px-4 py-2.5 rounded-xl bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-sm font-semibold shrink-0"
+            >
+              检索
+            </button>
+          </form>
+          <div class="flex flex-wrap gap-1.5 text-xs">
+            {AIRPORT_BRANDS.slice(0, 12).map((b) => (
+              <a
+                href={`/brands/${b.slug}/`}
+                class="px-2 py-1 rounded bg-slate-800/90 text-slate-300 hover:bg-blue-600 hover:text-white transition-colors"
+              >
+                {b.name}
+              </a>
+            ))}
+          </div>
+          <a
+            href="/brands/"
+            class="block w-full text-center py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-sky-300 text-xs font-mono font-semibold transition-colors"
+          >
+            打开完整 31 家品牌交互式数据库 →
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- 9. Deep Brand Reviews (3-Column Grid) & 10. Horizontal Comparisons -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
+      <section aria-labelledby="sec-reviews" class="lg:col-span-7 space-y-5">
+        <div class="flex items-center justify-between">
+          <div>
+            <span class="text-xs font-mono font-bold uppercase tracking-wider text-[#2563EB]">
+              IN-DEPTH REVIEWS // 深度评测
+            </span>
+            <h2 id="sec-reviews" class="text-2xl font-extrabold text-[#172033] mt-0.5">
+              品牌深度评测与架构报告
+            </h2>
+          </div>
+          <a href="/reviews/" class="text-sm font-semibold text-[#2563EB] hover:underline">
+            全部评测 →
+          </a>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+          {reviewPosts.slice(0, 2).map((post) => (
+            <ReviewCard post={post} />
+          ))}
+        </div>
+      </section>
+
+      <section aria-labelledby="sec-comparisons" class="lg:col-span-5 space-y-5">
+        <div class="flex items-center justify-between">
+          <div>
+            <span class="text-xs font-mono font-bold uppercase tracking-wider text-[#2563EB]">
+              HEAD-TO-HEAD // 横向对比
+            </span>
+            <h2 id="sec-comparisons" class="text-2xl font-extrabold text-[#172033] mt-0.5">
+              多品牌同档位横向对决
+            </h2>
+          </div>
+          <a href="/comparisons/" class="text-sm font-semibold text-[#2563EB] hover:underline">
+            全部对比 →
+          </a>
+        </div>
+        <div class="space-y-4">
+          {comparisonPosts.slice(0, 2).map((post) => (
+            <ComparisonCard post={post} />
+          ))}
+        </div>
+      </section>
+    </div>
+
+    <!-- 11. VPN & Accelerator Section -->
+    <section aria-labelledby="sec-vpn">
+      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-2 mb-6">
+        <div>
+          <span class="badge-category mb-2">专题二 · VPN 与加速器</span>
+          <h2 id="sec-vpn" class="text-2xl sm:text-3xl font-extrabold text-[#172033]">
+            VPN 推荐、手机跨区与开发者网络加速方案
+          </h2>
+          <p class="text-sm text-[#64748B] mt-1">
+            厘清传统商业 VPN、网游加速器与现代 IEPL 专线机场的协议边界，覆盖 iOS/Android 移动端与 GitHub 终端加速
+          </p>
+        </div>
+        <a href="/vpn/" class="text-sm font-semibold text-[#2563EB] hover:underline">
+          进入「VPN 与加速器」专栏 →
+        </a>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        {vpnPosts.map((post) => (
+          <ArticleCard post={post} horizontal={true} />
+        ))}
+      </div>
+    </section>
+
+    <!-- 12. Clash Client Tutorials (Organized by Windows, Android, iOS, macOS, Linux, OpenWrt) -->
+    <section aria-labelledby="sec-clash" class="p-6 sm:p-8 rounded-3xl bg-[#F7F9FC] border border-[#E5EAF1]">
+      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-6">
+        <div>
+          <span class="badge-category mb-2">专题三 · Clash 客户端知识库</span>
+          <h2 id="sec-clash" class="text-2xl sm:text-3xl font-extrabold text-[#172033]">
+            全平台代理客户端下载与 Clash Verge Rev 实战教程
+          </h2>
+          <p class="text-sm text-[#64748B] mt-1">
+            按 Windows、Android、iOS、macOS、Linux、OpenWrt 软路由六大环境整理 22 款核实工具与分步教程
+          </p>
+        </div>
+        <a href="/clash/" class="text-sm font-semibold text-[#2563EB] hover:underline">
+          进入「Clash 客户端」专栏 →
+        </a>
+      </div>
+
+      <!-- 6 OS Platform Quick Matrix -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+        {CLIENT_PLATFORMS.map((plat) => {
+          const clients = PROXY_CLIENTS.filter((c) => c.platforms.includes(plat));
+          return (
+            <div class="card-surface p-4 bg-white">
+              <div class="flex items-center justify-between mb-2">
+                <h3 class="text-sm font-bold text-[#172033]">{plat} 客户端</h3>
+                <span class="text-[11px] font-mono text-[#2563EB]">{clients.length} 款收录</span>
+              </div>
+              <div class="flex flex-wrap gap-1.5">
+                {clients.slice(0, 5).map((c) => (
+                  <a
+                    href={c.guideUrl}
+                    class:list={[
+                      'px-2 py-1 rounded text-xs border transition-colors',
+                      c.maintenanceStatus === '活跃推荐'
+                        ? 'bg-[#EFF6FF]/70 border-blue-200 text-[#1E40AF] font-semibold hover:bg-[#2563EB] hover:text-white'
+                        : 'bg-[#F7F9FC] border-[#E5EAF1] text-[#64748B] hover:text-[#172033]',
+                    ]}
+                  >
+                    {c.name}
+                  </a>
+                ))}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+        {clashGuidePosts.map((post) => (
+          <GuideCard post={post} />
+        ))}
+      </div>
+    </section>
+
+    <!-- 13. Network Troubleshooting & 14. Risk Intelligence -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
+      <!-- 13. Troubleshooting -->
+      <section aria-labelledby="sec-troubleshooting" class="lg:col-span-6 space-y-5">
+        <div class="flex items-center justify-between">
+          <div>
+            <span class="text-xs font-mono font-bold uppercase tracking-wider text-[#2563EB]">
+              TROUBLESHOOTING // 故障诊断
+            </span>
+            <h2 id="sec-troubleshooting" class="text-2xl font-extrabold text-[#172033] mt-0.5">
+              网络连接超时、订阅失败与断网修复
+            </h2>
+          </div>
+          <a href="/clash/troubleshooting/" class="text-sm font-semibold text-[#2563EB] hover:underline">
+            排障手册 →
+          </a>
+        </div>
+        <div class="space-y-4">
+          {troubleshootingPosts.map((post) => (
+            <GuideCard post={post} platformBadge="故障排查" />
+          ))}
+        </div>
+      </section>
+
+      <!-- 14. Risk & Intelligence -->
+      <section aria-labelledby="sec-intelligence" class="lg:col-span-6 space-y-5">
+        <div class="flex items-center justify-between">
+          <div>
+            <span class="text-xs font-mono font-bold uppercase tracking-wider text-[#2563EB]">
+              RISK INTELLIGENCE // 风险与情报
+            </span>
+            <h2 id="sec-intelligence" class="text-2xl font-extrabold text-[#172033] mt-0.5">
+              跑路预警、同系品牌审计与新手百科
+            </h2>
+          </div>
+          <a href="/resources/" class="text-sm font-semibold text-[#2563EB] hover:underline">
+            情报中心 →
+          </a>
+        </div>
+        <div class="space-y-3">
+          {intelligencePosts.map((post, i) => (
+            <CompactArticleCard post={post} index={i} />
+          ))}
+        </div>
+      </section>
+    </div>
+
+    <!-- 15. Latest 9 Articles -->
+    <section aria-labelledby="sec-latest">
+      <div class="flex items-center justify-between mb-6">
+        <div>
+          <span class="text-xs font-mono font-bold uppercase tracking-wider text-[#2563EB]">
+            LATEST PUBLICATIONS // 最新更新
+          </span>
+          <h2 id="sec-latest" class="text-2xl sm:text-3xl font-extrabold text-[#172033] mt-1">
+            最新发布的原创文章与评测报告
+          </h2>
+        </div>
+        <a
+          href="/articles/"
+          class="px-4 py-2 rounded-xl border border-[#E5EAF1] bg-white hover:border-[#2563EB] text-sm font-semibold text-[#2563EB] transition-colors"
+        >
+          查看全部 {allPosts.length} 篇已发布文章 →
+        </a>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {latestNinePosts.map((post) => (
+          <ArticleCard post={post} />
+        ))}
+      </div>
+    </section>
+
+    <!-- 16. Homepage FAQ Section -->
+    <FAQSection
+      title="新手与进阶用户高频问题解答 (FAQ)"
+      subtitle="涵盖机场选型、商业合作披露、Clash 客户端迁移与资金安全风控"
+      items={homeFaq}
+    />
+  </div>
+</HomeLayout>

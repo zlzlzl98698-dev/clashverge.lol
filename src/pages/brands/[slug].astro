@@ -1,0 +1,56 @@
+---
+import BrandLayout from '../../layouts/BrandLayout.astro';
+import { AIRPORT_BRANDS, type AirportBrand } from '../../data/brands';
+import { getPostsByBrand, getAllPublishedPosts } from '../../utils/content';
+
+export async function getStaticPaths() {
+  return AIRPORT_BRANDS.map((brand) => ({
+    params: { slug: brand.slug },
+    props: { brand },
+  }));
+}
+
+interface Props {
+  brand: AirportBrand;
+}
+
+const { brand } = Astro.props;
+const brandPosts = await getPostsByBrand(brand.slug);
+const allPosts = await getAllPublishedPosts();
+const finalRelatedPosts =
+  brandPosts.length >= 3
+    ? brandPosts
+    : [...brandPosts, ...allPosts.filter((p) => !brandPosts.some((bp) => bp.slug === p.slug))].slice(0, 6);
+---
+
+<BrandLayout brand={brand} relatedPosts={finalRelatedPosts}>
+  {brand.slug === 'guangsuyun' && (
+    <section class="card-surface p-6 bg-[#EFF6FF]/50 border-blue-200">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <span class="badge-category mb-1">旗舰深度评测扩展</span>
+          <h2 class="text-lg font-bold text-[#172033]">
+            阅读《光速云 2026 深度评测》全文（含7档套餐历史差异审计与双专线拓扑图）
+          </h2>
+          <p class="text-xs text-[#64748B] mt-1">
+            我们还为你准备了光速云与暮光加速、飞猫云、星岛梦的详细横向对比报告。
+          </p>
+        </div>
+        <div class="flex flex-wrap gap-2 shrink-0">
+          <a
+            href="/reviews/guangsuyun-in-depth-review-2026/"
+            class="px-4 py-2 rounded-xl bg-[#2563EB] text-white text-xs font-semibold hover:bg-[#1D4ED8]"
+          >
+            阅读光速云万字深度评测 →
+          </a>
+          <a
+            href="/comparisons/guangsuyun-vs-muguang-vs-feimao-comparison/"
+            class="px-3.5 py-2 rounded-xl bg-white border border-[#E5EAF1] text-[#172033] text-xs font-semibold hover:border-[#2563EB]"
+          >
+            查看三强横向对比
+          </a>
+        </div>
+      </div>
+    </section>
+  )}
+</BrandLayout>

@@ -1,0 +1,30 @@
+---
+import type { UnifiedPost } from '../../utils/content';
+
+export interface Props {
+  post: UnifiedPost;
+  index?: number;
+}
+
+const { post, index } = Astro.props;
+---
+
+<article class="card-surface p-4 flex items-start gap-3.5 group">
+  {typeof index === 'number' && (
+    <span class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-[#EFF6FF] text-[#2563EB] font-mono text-xs font-bold shrink-0 mt-0.5">
+      {String(index + 1).padStart(2, '0')}
+    </span>
+  )}
+  <div class="flex-1 min-w-0">
+    <div class="flex items-center gap-2 text-[11px] text-[#64748B] mb-1">
+      <span class="text-[#2563EB] font-semibold">{post.categoryLabel}</span>
+      <span>·</span>
+      <time datetime={post.updatedDate}>{post.updatedDate}</time>
+      <span>·</span>
+      <span>{post.readingTime}</span>
+    </div>
+    <h3 class="text-sm sm:text-[15px] font-bold text-[#172033] group-hover:text-[#2563EB] transition-colors line-clamp-2 leading-snug">
+      <a href={post.url}>{post.title}</a>
+    </h3>
+  </div>
+</article>

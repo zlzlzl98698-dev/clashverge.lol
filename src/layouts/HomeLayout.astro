@@ -1,0 +1,26 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import { SITE_CONFIG } from '../data/site';
+
+export interface Props {
+  title?: string;
+  description?: string;
+  faq?: { q: string; a: string }[];
+}
+
+const {
+  title = SITE_CONFIG.siteTitle,
+  description = SITE_CONFIG.description,
+  faq = [],
+} = Astro.props;
+---
+
+<BaseLayout
+  title={title}
+  description={description}
+  ogType="website"
+  schemaType="WebPage"
+  faq={faq}
+>
+  <slot />
+</BaseLayout>

@@ -1,0 +1,130 @@
+---
+import type { AirportBrand } from '../../data/brands';
+
+export interface Props {
+  brand: AirportBrand;
+}
+
+const { brand } = Astro.props;
+const hasMeasuredData = brand.speedRecords.some((r) => r.downloadMbps !== null);
+const measuredNodes = brand.speedRecords.filter((r) => r.downloadMbps !== null);
+const maxMbps = measuredNodes.length
+  ? Math.max(...measuredNodes.map((r) => r.downloadMbps || 0))
+  : 0;
+const avgLatency = measuredNodes.length
+  ? Math.round(
+      measuredNodes.reduce((acc, r) => acc + (parseInt(r.latency, 10) || 0), 0) /
+        measuredNodes.length
+    )
+  : null;
+---
+
+<section
+  class="observatory-panel p-5 sm:p-6 my-8"
+  aria-label={`${brand.name} 网络性能可观测性实测报告`}
+>
+  <!-- Top Console Bar -->
+  <div class="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-slate-800">
+    <div class="flex items-center gap-2.5">
+      <span
+        class="w-2.5 h-2.5 rounded-full shrink-0"
+        style={`background-color: ${hasMeasuredData ? '#10B981' : '#64748B'}; box-shadow: 0 0 8px ${hasMeasuredData ? '#10B98188' : 'transparent'};`}
+      ></span>
+      <div>
+        <h3 class="text-base sm:text-lg font-bold text-slate-100 tracking-tight">
+          {brand.name} · Network Performance Report
+        </h3>
+        <p class="text-xs font-mono text-slate-400">
+          BATCH: {brand.speedTestDate} | ENV: {brand.speedTestEnv} | LINE: {brand.lineType}
+        </p>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-2">
+      <span
+        class:list={[
+          'px-2.5 py-1 rounded text-[11px] font-mono font-semibold border',
+          hasMeasuredData
+            ? 'bg-emerald-950/70 text-emerald-300 border-emerald-700/60'
+            : 'bg-slate-800 text-slate-300 border-slate-700',
+        ]}
+      >
+        {hasMeasuredData ? 'STATUS: MEASURED DATA' : 'STATUS: NOT TESTED / PENDING'}
+      </span>
+    </div>
+  </div>
+
+  <!-- Node Speed Bars -->
+  {hasMeasuredData ? (
+    <div class="mt-5 space-y-4">
+      {brand.speedRecords.map((rec) => {
+        const mbps = rec.downloadMbps || 0;
+        const mbs = (mbps / 8).toFixed(1);
+        const pct = Math.min(100, Math.max(8, Math.round((mbps / 600) * 100)));
+        const isHigh = mbps >= 350;
+        const isMid = mbps >= 100 && mbps < 350;
+        return (
+          <div class="p-3.5 rounded-xl bg-[#111827] border border-slate-800/90">
+            <div class="flex flex-wrap items-center justify-between gap-2 text-xs sm:text-sm mb-2">
+              <div class="flex items-center gap-2.5">
+                <span
+                  class:list={[
+                    'w-2 h-2 rounded-full',
+                    isHigh ? 'bg-emerald-400' : isMid ? 'bg-sky-400' : 'bg-amber-400',
+                  ]}
+                />
+                <span class="font-bold text-slate-100">{rec.region} 节点</span>
+                <span class="px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 font-mono text-[11px]">
+                  {rec.status}
+                </span>
+              </div>
+              <div class="flex items-center gap-4 font-mono">
+                <span class="text-slate-400">
+                  RTT延迟: <strong class="text-slate-100">{rec.latency}</strong>
+                </span>
+                <span class="text-slate-400">
+                  下行带宽:{' '}
+                  <strong class="text-emerald-400">{rec.downloadText}</strong>
+                  <span class="text-[11px] text-slate-400 ml-1">(≈{mbs} MB/s)</span>
+                </span>
+              </div>
+            </div>
+            <div class="w-full h-2.5 rounded-full bg-slate-800/90 overflow-hidden">
+              <div
+                class="h-full rounded-full transition-all duration-500"
+                style={`width: ${pct}%; background: linear-gradient(90deg, ${brand.accentColor || '#2563EB'}, ${isHigh ? '#10B981' : '#38BDF8'});`}
+              />
+            </div>
+          </div>
+        );
+      })}
+
+      <!-- Summary Footer -->
+      <div class="pt-3 border-t border-slate-800 flex flex-wrap items-center justify-between gap-3 text-xs font-mono text-slate-400">
+        <div>
+          SUMMARY: 平均延迟 {avgLatency ? `${avgLatency}ms` : '—'} | 峰值下行 {maxMbps} Mbps (≈{(maxMbps / 8).toFixed(1)} MB/s)
+        </div>
+        <div class="text-slate-400 opacity-75">[clashverge.lol // Observatory Lab]</div>
+      </div>
+    </div>
+  ) : (
+    <div class="my-6 p-5 rounded-xl bg-[#111827] border border-slate-800 text-center space-y-2">
+      <p class="text-sm font-semibold text-slate-200">
+        当前品牌暂无 2026-10-19 同批次逐地区实测速度数值
+      </p>
+      <p class="text-xs text-slate-400 max-w-xl mx-auto leading-relaxed">
+        遵循本站评测实验室反虚构原则：未经独立实测或原始档案空缺的节点数据一律标记为「NOT TESTED / 待核实」，绝不使用演示数值冒充实测结果。
+      </p>
+    </div>
+  )}
+
+  <!-- Accessible HTML Text Summary for Search Engines -->
+  <div class="mt-3 pt-3 border-t border-slate-800/80 text-xs text-slate-300 leading-relaxed">
+    <strong>数据可读摘要：</strong>
+    {hasMeasuredData
+      ? `${brand.name} 在 ${brand.speedTestDate}（${brand.speedTestEnv}）测试中，${brand.speedRecords
+          .map((r) => `${r.region}节点延迟 ${r.latency}、下载速度 ${r.downloadText}`)
+          .join('；')}。数据来源：${brand.sourceFiles.join('、')}。`
+      : `${brand.name} 目前已核实基础线路类型为 ${brand.lineType}，协议支持 ${brand.protocols.join('/')}，逐地区延迟与吞吐量实测数据处于待补充状态。`}
+  </div>
+</section>

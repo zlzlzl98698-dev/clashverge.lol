@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" fill="none">
+  <rect width="800" height="450" fill="#F7F9FC"/>
+  <rect x="55" y="55" width="690" height="340" rx="20" fill="#FFFFFF" stroke="#E5EAF1" stroke-width="2"/>
+  <rect x="95" y="95" width="280" height="260" rx="14" fill="#EFF6FF" stroke="#BFDBFE"/>
+  <text x="125" y="140" fill="#1E40AF" font-family="sans-serif" font-weight="bold" font-size="20">IEPL / IPLC 专线机场</text>
+  <text x="125" y="180" fill="#2563EB" font-family="monospace" font-size="15">+ 智能规则分流 (Rule)</text>
+  <text x="125" y="215" fill="#2563EB" font-family="monospace" font-size="15">+ 跨境内网低延迟直达</text>
+  <text x="125" y="250" fill="#2563EB" font-family="monospace" font-size="15">+ 多地区原生 IP 解锁</text>
+  <circle cx="400" cy="225" r="26" fill="#172033"/>
+  <text x="387" y="232" fill="#FFFFFF" font-family="monospace" font-weight="bold" font-size="16">VS</text>
+  <rect x="425" y="95" width="280" height="260" rx="14" fill="#F8FAFC" stroke="#E2E8F0"/>
+  <text x="455" y="140" fill="#334155" font-family="sans-serif" font-weight="bold" font-size="20">传统 VPN 与加速器</text>
+  <text x="455" y="180" fill="#64748B" font-family="monospace" font-size="15">- 全局路由易影响国内网速</text>
+  <text x="455" y="215" fill="#64748B" font-family="monospace" font-size="15">- 公网协议特征易受阻断</text>
+  <text x="455" y="250" fill="#64748B" font-family="monospace" font-size="15">- 专属客户端免配置体验</text>
+</svg>

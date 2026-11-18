@@ -1,0 +1,99 @@
+---
+import { SITE_CONFIG } from '../data/site';
+import Navigation from './Navigation.astro';
+import MobileMenu from './MobileMenu.astro';
+---
+
+<header class="sticky top-0 z-40 w-full bg-white/95 backdrop-blur-md border-b border-[#E5EAF1]">
+  <div class="editorial-container h-16 flex items-center justify-between gap-4">
+    <!-- Brand Logo -->
+    <a href="/" class="inline-flex items-center gap-2.5 shrink-0 group">
+      <img
+        src="/images/clash-logo.png"
+        alt={SITE_CONFIG.brandName}
+        class="w-9 h-9 rounded-full object-cover shadow-sm group-hover:scale-105 transition-transform"
+        width="36"
+        height="36"
+      />
+      <div class="flex flex-col">
+        <span class="text-lg font-extrabold tracking-tight text-[#172033] leading-none">
+          {SITE_CONFIG.brandName}
+        </span>
+        <span class="text-[11px] font-mono text-[#64748B] mt-0.5">
+          {SITE_CONFIG.domain}
+        </span>
+      </div>
+    </a>
+
+    <!-- Strict 4 Primary Navigations -->
+    <Navigation />
+
+    <!-- Right Actions: Search + Brand DB Quick Link + Mobile Button -->
+    <div class="flex items-center gap-2">
+      <a
+        href="/search/"
+        class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-[#E5EAF1] bg-[#F7F9FC] text-sm text-[#64748B] hover:border-[#2563EB] hover:text-[#2563EB] transition-colors"
+        aria-label="站内全文搜索"
+      >
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        </svg>
+        <span class="hidden sm:inline">搜索文章 / 品牌</span>
+        <kbd class="hidden md:inline-block px-1.5 py-0.5 text-[10px] font-mono bg-white border border-[#E5EAF1] rounded text-slate-400">
+          /
+        </kbd>
+      </a>
+
+      <a
+        href="/brands/"
+        class="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-[#EFF6FF] text-[#2563EB] hover:bg-[#2563EB] hover:text-white text-sm font-semibold transition-colors"
+      >
+        <span>品牌库 (31)</span>
+      </a>
+
+      <button
+        id="mobile-menu-toggle"
+        type="button"
+        class="lg:hidden inline-flex items-center justify-center p-2 rounded-lg border border-[#E5EAF1] text-[#172033] hover:bg-[#F7F9FC]"
+        aria-expanded="false"
+        aria-controls="mobile-menu-drawer"
+        aria-label="展开或收起导航菜单"
+      >
+        <svg id="menu-icon-open" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+        <svg id="menu-icon-close" class="w-5 h-5 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <MobileMenu />
+</header>
+
+<script is:inline>
+  (function () {
+    const btn = document.getElementById('mobile-menu-toggle');
+    const drawer = document.getElementById('mobile-menu-drawer');
+    const iconOpen = document.getElementById('menu-icon-open');
+    const iconClose = document.getElementById('menu-icon-close');
+    if (btn && drawer) {
+      btn.addEventListener('click', () => {
+        const isHidden = drawer.classList.contains('hidden');
+        drawer.classList.toggle('hidden', !isHidden);
+        btn.setAttribute('aria-expanded', String(isHidden));
+        if (iconOpen && iconClose) {
+          iconOpen.classList.toggle('hidden', isHidden);
+          iconClose.classList.toggle('hidden', !isHidden);
+        }
+      });
+    }
+    document.addEventListener('keydown', (e) => {
+      if (e.key === '/' && document.activeElement?.tagName !== 'INPUT' && document.activeElement?.tagName !== 'TEXTAREA') {
+        e.preventDefault();
+        window.location.href = '/search/';
+      }
+    });
+  })();
+</script>

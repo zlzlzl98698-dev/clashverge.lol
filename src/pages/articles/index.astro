@@ -1,0 +1,74 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumb from '../../components/Breadcrumb.astro';
+import ArticleCard from '../../components/cards/ArticleCard.astro';
+import { getAllPublishedPosts } from '../../utils/content';
+import { PRIMARY_NAVIGATION } from '../../data/navigation';
+
+const allPosts = await getAllPublishedPosts();
+const breadcrumbs = [
+  { name: '首页', url: '/' },
+  { name: '全部原创文章与评测库', url: '/articles/' },
+];
+---
+
+<BaseLayout
+  title="2026 原创评测文章、Clash教程与网络加速知识库总览 | clash订阅"
+  description="汇集 clash订阅 全部已发布的原创支柱长文、31家机场品牌深度评测、横向对比与 Clash Verge Rev 故障排查手册。"
+  breadcrumbs={breadcrumbs}
+  schemaType="ItemList"
+  itemListElements={allPosts.map((p) => ({
+    name: p.title,
+    url: p.url,
+    description: p.description,
+  }))}
+>
+  <section class="bg-[#F7F9FC] border-b border-[#E5EAF1] py-10">
+    <div class="editorial-container">
+      <Breadcrumb items={breadcrumbs} />
+      <h1 class="text-3xl sm:text-4xl font-extrabold text-[#172033]">
+        全部原创文章与评测报告 ({allPosts.length} 篇已发布)
+      </h1>
+      <p class="mt-2 text-base text-[#64748B]">
+        所有正式发布文章均具备实质内容增量与核实数据，未完成的正文规划绝不冒充已发布页面。
+      </p>
+
+      <div class="mt-5 flex flex-wrap gap-2">
+        {PRIMARY_NAVIGATION.map((sec) => (
+          <a
+            href={sec.url}
+            class="px-3.5 py-1.5 rounded-xl bg-white border border-[#E5EAF1] text-xs font-semibold text-[#172033] hover:border-[#2563EB] hover:text-[#2563EB]"
+          >
+            {sec.name}专栏 →
+          </a>
+        ))}
+        <a
+          href="/reviews/"
+          class="px-3.5 py-1.5 rounded-xl bg-[#EFF6FF] text-xs font-semibold text-[#2563EB]"
+        >
+          品牌深度评测
+        </a>
+        <a
+          href="/comparisons/"
+          class="px-3.5 py-1.5 rounded-xl bg-[#EFF6FF] text-xs font-semibold text-[#2563EB]"
+        >
+          多品牌横向对比
+        </a>
+        <a
+          href="/guides/"
+          class="px-3.5 py-1.5 rounded-xl bg-[#EFF6FF] text-xs font-semibold text-[#2563EB]"
+        >
+          客户端配置教程
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <div class="editorial-container py-10">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {allPosts.map((post) => (
+        <ArticleCard post={post} />
+      ))}
+    </div>
+  </div>
+</BaseLayout>
